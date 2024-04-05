@@ -96,7 +96,7 @@ end
 
 function Task:start()
   if self.status ~= 'waiting' then
-    vim.notify('Task has already been started', vim.log.levels.WARN)
+    util.notify('Task has already been started', 'WARN')
     return
   end
   self:get_buf()
@@ -111,9 +111,9 @@ function Task:start()
       self._job_id = nil
       self.debugger_attached = false
       if code == 0 then
-        vim.notify('Task completed successfully', vim.log.levels.INFO)
+        util.notify('Task completed successfully', 'INFO')
       else
-        vim.notify('Task exited with code: ' .. code, vim.log.levels.ERROR)
+        util.notify('Task exited with code: ' .. code, 'ERROR')
       end
       self:_emit_on_change()
     end,
@@ -127,12 +127,12 @@ function Task:start()
   })
 
   if res == 0 then
-    vim.notify('Failed to start task: invalid arguments or job table is full', vim.log.levels.ERROR)
+    util.notify('Failed to start task: invalid arguments or job table is full', 'ERROR')
     self.status = 'failed'
     return
   end
   if res == -1 then
-    vim.notify('Failed to start task: command is not executable', vim.log.levels.ERROR)
+    util.notify('Failed to start task: command is not executable', 'ERROR')
     self.status = 'failed'
     return
   end
@@ -157,7 +157,7 @@ end
 
 function Task:stop()
   if self.status ~= 'running' then
-    vim.notify('Task is not running', vim.log.levels.WARN)
+    util.notify('Task is not running', 'WARN')
     return
   end
   vim.fn.jobstop(self._job_id)

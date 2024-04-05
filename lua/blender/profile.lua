@@ -1,6 +1,7 @@
 local manager = require 'blender.manager'
 local Task = require 'blender.task'
 local rpc = require 'blender.rpc'
+local util = require 'blender.util'
 
 ---@class ProfileParams
 ---@field name string # The name of the profile
@@ -17,7 +18,7 @@ local launcher = 'launch_blender.py'
 local get_launcher_path = function()
   local launcher_path = vim.api.nvim_get_runtime_file(launcher, false)
   if not launcher_path or #launcher_path == 0 then
-    vim.notify('[blender.nvim] Could not find launcher script: ' .. launcher, vim.log.levels.ERROR)
+    util.notify('Could not find launcher script: ' .. launcher, 'ERROR')
     return nil
   end
   return launcher_path[1]
@@ -114,7 +115,7 @@ end
 function Profile:get_path_mappings()
   local load_dir = self:find_addon_dir()
   if not load_dir then
-    vim.notify('[blender.nvim] Could not find addon directory', vim.log.levels.WARN)
+    util.notify('Could not find addon directory', 'WARN')
     return {}
   end
   local module_name = vim.fn.fnamemodify(load_dir, ':t')

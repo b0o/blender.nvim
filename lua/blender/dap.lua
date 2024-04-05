@@ -1,4 +1,5 @@
 local dap = require 'dap'
+local util = require 'blender.util'
 
 local manager = require 'blender.manager'
 
@@ -32,7 +33,7 @@ M.attach = function(args)
   }
   local session = dap.attach(adapter, config)
   if session == nil then
-    vim.notify('[Blender.nvim] Failed to attach to debugger', vim.log.levels.ERROR)
+    util.notify('Failed to attach to debugger', 'ERROR')
     return
   end
   M.session = session
@@ -40,7 +41,7 @@ M.attach = function(args)
   if running_task and running_task.id == args.task_id then
     running_task:attach_debugger()
   end
-  vim.notify('[Blender.nvim] Attached to Blender debugger', vim.log.levels.INFO)
+  util.notify('Attached to Blender debugger', 'INFO')
 end
 
 local default_buf

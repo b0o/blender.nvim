@@ -2,6 +2,7 @@ local Profile = require 'blender.profile'
 local Schema = require 'blender.config.schema'
 local vx = require 'blender.config.validate'
 local tx = require 'blender.config.transform'
+local util = require 'blender.util'
 
 local M = {}
 
@@ -67,7 +68,7 @@ local mt = setmetatable({
         [Schema.result.DEPRECATED] = 'deprecated: %s',
       })[schema]
       local msg = fmt_str:format(err)
-      vim.notify(('[blender.nvim] config error: %s'):format(msg), vim.log.levels.ERROR)
+      util.notify('Config error: ' .. msg, 'ERROR')
       return
     end
     M.config = schema

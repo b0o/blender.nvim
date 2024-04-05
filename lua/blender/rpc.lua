@@ -1,3 +1,5 @@
+local util = require 'blender.util'
+
 local M = {
   ---@type Server?
   server = nil,
@@ -81,7 +83,7 @@ end
 M.handle = function(msg)
   local handler = M.handlers[msg.type]
   if not handler then
-    vim.notify('[Blender.nvim] Received unknown RPC message type: "' .. msg.type .. '"', vim.log.levels.ERROR)
+    util.notify('Received unknown RPC message type: "' .. msg.type .. '"', 'ERROR')
     return
   end
   vim.schedule(function()

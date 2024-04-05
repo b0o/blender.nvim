@@ -1,4 +1,5 @@
 local n = require 'nui-components'
+local util = require 'blender.util'
 
 local buffer = require 'blender.components.buffer'
 local dap = require 'blender.dap'
@@ -67,7 +68,7 @@ return function(props)
       mode = { 'n', 'v' },
       key = '<C-r>',
       handler = function()
-        vim.notify('Restarting task', vim.log.levels.INFO)
+        util.notify('Restarting task', 'INFO')
         local new_task = task:clone()
         task:stop()
         clear_on_change_listener()

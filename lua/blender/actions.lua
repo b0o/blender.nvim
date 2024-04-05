@@ -1,9 +1,10 @@
+local util = require 'blender.util'
+local ui = require 'blender.ui'
+local manager = require 'blender.manager'
+
 local M = {}
 
 M.show_launcher = function()
-  local ui = require 'blender.ui'
-  local manager = require 'blender.manager'
-
   local running_task = manager.get_running_task()
   if running_task then
     ui.manage_task {
@@ -24,11 +25,8 @@ M.show_launcher = function()
 end
 
 M.show_task_manager = function()
-  local ui = require 'blender.ui'
-  local manager = require 'blender.manager'
-
   if not manager.task then
-    vim.notify('No Blender task', vim.log.levels.INFO)
+    util.notify('No Blender task', 'INFO')
     return
   end
   ui.manage_task {
@@ -37,6 +35,14 @@ M.show_task_manager = function()
       -- TODO: Implement
     end,
   }
+end
+
+M.reload_addon = function()
+  local running_task = manager.get_running_task()
+  if running_task then
+    util.notify('No running blender task', 'INFO')
+    return
+  end
 end
 
 return M
