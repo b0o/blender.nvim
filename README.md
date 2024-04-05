@@ -10,6 +10,8 @@ Develop Blender add-ons with Neovim. Blender.nvim streamlines the development pr
 > [!NOTE]
 > Blender.nvim is experimental and under active development.
 
+https://github.com/b0o/blender.nvim/assets/21299126/961f4bb9-4924-4bee-8540-d8392036c482
+
 ## Features
 
 - **Run your add-on directly from Neovim**
