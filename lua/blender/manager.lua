@@ -1,0 +1,33 @@
+local M = {
+  ---@type Task?
+  task = nil,
+}
+
+---@param task Task
+M.start = function(task)
+  if M.has_running_task() then
+    M.stop()
+  end
+  M.task = task
+  M.task:start()
+end
+
+M.stop = function()
+  if M.has_running_task() then
+    M.task:stop()
+  end
+  M.task = nil
+end
+
+M.has_running_task = function()
+  return M.task and M.task.status == 'running'
+end
+
+M.get_running_task = function()
+  if M.has_running_task() then
+    return M.task
+  end
+  return nil
+end
+
+return M

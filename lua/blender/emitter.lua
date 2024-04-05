@@ -1,0 +1,10 @@
+-- ---@generic TEvent
+-- ---@alias Listener fun(TEvent):nil
+--
+-- ---Other classes can inherit from this class to become an emitter.
+-- ---An emitter is an object that can emit events and have listeners for those events.
+-- ---@class Emitter<TEvent>
+-- ---@field listeners table<string, fun(...):...[]>
+-- local Emitter = {}
+--
+-- return Emitter
