@@ -20,7 +20,7 @@ https://github.com/b0o/blender.nvim/assets/21299126/961f4bb9-4924-4bee-8540-d839
 ## Features
 
 - **Run your add-on directly from Neovim**
-- **Refresh your add-on with a single Neovim command** (TODO)
+- **Refresh your add-on with a single Neovim command**
 - **Reload your add-on automatically when a file changes** (TODO)
 - **Create profiles for different versions of Blender**
 - **Debug your add-on with DAP**
@@ -53,6 +53,7 @@ use {
   dependencies = {
     "MunifTanjim/nui.nvim",
     "grapp-dev/nui-components.nvim",
+    'nvim-lua/plenary.nvim',
     "mfussenegger/nvim-dap", -- optional
   },
 }

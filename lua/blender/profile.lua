@@ -112,6 +112,11 @@ function Profile:find_addon_dir()
   return addon_dir
 end
 
+---@class PathMapping
+---@field load_dir string
+---@field module_name string
+
+---@return List<PathMapping>
 function Profile:get_path_mappings()
   local load_dir = self:find_addon_dir()
   if not load_dir then

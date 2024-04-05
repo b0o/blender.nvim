@@ -39,10 +39,15 @@ end
 
 M.reload_addon = function()
   local running_task = manager.get_running_task()
-  if running_task then
+  if not running_task then
     util.notify('No running blender task', 'INFO')
     return
   end
+  if not running_task.client then
+    util.notify('No RPC client attached to the running task', 'ERROR')
+    return
+  end
+  running_task.client:reload_addon()
 end
 
 return M

@@ -23,6 +23,7 @@ end
 M.setup = function()
   cmd('BlenderLaunch', action 'show_launcher', 'Launch a Blender profile')
   cmd('BlenderManage', action 'show_task_manager', 'Manage a running Blender task')
+  cmd('BlenderReloadAddon', action 'reload_addon', 'Reload the Blender addon')
 end
 
 return M

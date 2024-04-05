@@ -1,7 +1,6 @@
-local dap = require 'dap'
-local util = require 'blender.util'
+local has_dap, dap = pcall(require, 'dap')
 
-local manager = require 'blender.manager'
+local util = require 'blender.util'
 
 ---@class BlenderDap
 ---@field session? table
@@ -15,10 +14,12 @@ local M = {
 ---@field python_exe string
 ---@field path_mappings List<unknown>
 ---@field cwd string
----@field task_id number
 
 ---@param args BlenderDapAttachArgs
 M.attach = function(args)
+  if not has_dap then
+    return false
+  end
   local adapter = {
     host = args.host,
     port = args.port,
@@ -34,14 +35,11 @@ M.attach = function(args)
   local session = dap.attach(adapter, config)
   if session == nil then
     util.notify('Failed to attach to debugger', 'ERROR')
-    return
+    return false
   end
   M.session = session
-  local running_task = manager.get_running_task()
-  if running_task and running_task.id == args.task_id then
-    running_task:attach_debugger()
-  end
   util.notify('Attached to Blender debugger', 'INFO')
+  return true
 end
 
 local default_buf
@@ -51,7 +49,7 @@ local get_default_buf = function()
   if not default_buf or not vim.api.nvim_buf_is_valid(default_buf) then
     buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
-      'No active debug session',
+      has_dap and 'No active debug session' or 'nvim-dap not installed',
     })
   end
   default_buf = buf
@@ -59,6 +57,9 @@ local get_default_buf = function()
 end
 
 M.get_buf = function()
+  if not has_dap then
+    return get_default_buf()
+  end
   local buf = vim.fn.bufnr 'dap-repl'
   if buf == -1 and M.session and M.session.initialized and not M.session.closed then
     local all_wins = vim.api.nvim_list_wins()

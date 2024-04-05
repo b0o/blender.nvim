@@ -30,4 +30,14 @@ M.get_running_task = function()
   return nil
 end
 
+---@param task_id integer
+---@param client RpcClient
+M.attach = function(task_id, client)
+  local running_task = M.get_running_task()
+  if not running_task or running_task.id ~= task_id then
+    return
+  end
+  running_task:attach_client(client)
+end
+
 return M

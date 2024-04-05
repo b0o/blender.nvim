@@ -1,4 +1,6 @@
 local util = require 'blender.util'
+local manager = require 'blender.manager'
+local RpcClient = require 'blender.rpc.client'
 
 local M = {
   ---@type Server?
@@ -46,7 +48,7 @@ end
 M.handlers = {}
 
 ---@class RpcMessage
----@field type 'setup'
+---@field type 'setup' | 'addonUpdated'
 
 ---@class RpcSetupParams : RpcMessage
 ---@field type 'setup'
@@ -56,7 +58,7 @@ M.handlers = {}
 ---@field blender_path string
 ---@field scripts_folder string
 ---@field path_mappings List<unknown>
----@field task_id number
+---@field task_id string
 
 ---@param params RpcSetupParams
 M.handlers.setup = function(params)
@@ -69,14 +71,24 @@ M.handlers.setup = function(params)
     path_mappings = { params.path_mappings, 'table' },
     task_id = { params.task_id, 'string' },
   }
-  require('blender.dap').attach {
-    host = '127.0.0.1', -- TODO: Make dynamic
-    port = params.debugpy_port,
+  local task_id = tonumber(params.task_id) or 0
+  local rpc_client = RpcClient.new {
+    blender_port = params.blender_port,
+    debugpy_port = params.debugpy_port,
     python_exe = params.python_exe,
-    cwd = params.scripts_folder,
+    blender_path = params.blender_path,
+    scripts_folder = params.scripts_folder,
     path_mappings = params.path_mappings,
-    task_id = tonumber(params.task_id) or 0,
   }
+  manager.attach(task_id, rpc_client)
+end
+
+---@class RpcAddonUpdatedParams : RpcMessage
+---@field type 'addonUpdated'
+
+---@param params RpcAddonUpdatedParams
+M.handlers.addonUpdated = function(params)
+  util.notify('Addon updated', 'INFO')
 end
 
 ---@param msg RpcMessage

@@ -21,6 +21,7 @@ local util = require 'blender.util'
 ---@field output List<OutputLine>
 ---@field private _listeners table<number, fun(): nil>
 ---@field debugger_attached boolean
+---@field client? RpcClient
 local Task = {}
 
 local last_id = 0
@@ -179,11 +180,24 @@ function Task:off_change(id)
   self._listeners[id] = nil
 end
 
-function Task:attach_debugger()
-  self.debugger_attached = true
+---@param client RpcClient
+function Task:attach_client(client)
+  self.client = client
+  if client.debugpy_port then
+    local dap_attached = require('blender.dap').attach {
+      host = '127.0.0.1', -- TODO: Make dynamic
+      port = client.debugpy_port,
+      python_exe = client.python_exe,
+      cwd = client.scripts_folder,
+      path_mappings = client.path_mappings,
+    }
+    if dap_attached then
+      self.debugger_attached = true
+    end
+  end
   self:_emit_on_change()
 end
 
---TODO: Detect debugger detaching
+--TODO: Detect client/debugger detach
 
 return Task
