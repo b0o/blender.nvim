@@ -53,7 +53,7 @@ M.handlers = {}
 ---@field python_exe string
 ---@field blender_path string
 ---@field scripts_folder string
----@field addon_path_mappings List<unknown>
+---@field path_mappings List<unknown>
 ---@field task_id number
 
 ---@param params RpcSetupParams
@@ -64,7 +64,7 @@ M.handlers.setup = function(params)
     python_exe = { params.python_exe, 'string' },
     blender_path = { params.blender_path, 'string' },
     scripts_folder = { params.scripts_folder, 'string' },
-    addon_path_mappings = { params.addon_path_mappings, 'table' },
+    path_mappings = { params.path_mappings, 'table' },
     task_id = { params.task_id, 'string' },
   }
   require('blender.dap').attach {
@@ -72,7 +72,7 @@ M.handlers.setup = function(params)
     port = params.debugpy_port,
     python_exe = params.python_exe,
     cwd = params.scripts_folder,
-    path_mappings = params.addon_path_mappings,
+    path_mappings = params.path_mappings,
     task_id = tonumber(params.task_id) or 0,
   }
 end

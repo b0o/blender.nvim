@@ -129,7 +129,7 @@ def send_connection_information(path_mappings):
             "python_exe": sys.executable,
             "blender_path": str(blender_path),
             "scripts_folder": str(scripts_folder),
-            "addon_path_mappings": path_mappings,
+            "path_mappings": path_mappings,
             "task_id": os.environ.get("BLENDER_NVIM_TASK_ID", "0"),
         }
     )
