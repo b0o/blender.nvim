@@ -15,10 +15,6 @@ command will refresh it without needing to restart Blender.
 > [!NOTE]
 > Blender.nvim is experimental and under active development.
 
-https://github.com/b0o/blender.nvim/assets/21299126/961f4bb9-4924-4bee-8540-d8392036c482
-
-https://github.com/b0o/blender.nvim/assets/21299126/cce964de-7cb6-4dfb-86d4-2cf2978b36f3
-
 ## Features
 
 - **Run your add-on directly from Neovim**
@@ -27,6 +23,10 @@ https://github.com/b0o/blender.nvim/assets/21299126/cce964de-7cb6-4dfb-86d4-2cf2
 - **Create profiles for different versions of Blender**
 - **Debug your add-on with DAP**
 - **Support for Python virtual environments**
+
+https://github.com/b0o/blender.nvim/assets/21299126/961f4bb9-4924-4bee-8540-d8392036c482
+
+https://github.com/b0o/blender.nvim/assets/21299126/cce964de-7cb6-4dfb-86d4-2cf2978b36f3
 
 ## Installation
 
@@ -42,6 +42,7 @@ Neovim Plugin Dependencies:
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
 - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim)
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
 - [nvim-dap (for DAP support, optional)](https://github.com/mfussenegger/nvim-dap)
 
 Lazy.nvim:
