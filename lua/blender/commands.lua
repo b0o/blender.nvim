@@ -23,8 +23,6 @@ end
 M.setup = function()
   cmd('BlenderLaunch', action 'show_launcher', 'Launch a Blender profile')
   cmd('BlenderManage', action 'show_task_manager', 'Manage a running Blender task')
-  --TODO: Remove
-  cmd('BlenderTest', action 'show_test', 'Blender test command')
 end
 
 return M

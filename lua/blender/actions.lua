@@ -39,10 +39,4 @@ M.show_task_manager = function()
   }
 end
 
---TODO: Remove
-M.show_test = function()
-  local ui = require 'blender.ui'
-  ui.test()
-end
-
 return M
