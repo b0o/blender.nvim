@@ -5,7 +5,12 @@
   <a href="https://mit-license.org"><img alt="License: MIT" src="https://img.shields.io/github/license/b0o/blender.nvim?style=flat&color=green"/></a>
 </p>
 
-Develop Blender add-ons with Neovim. Blender.nvim streamlines the development process by providing a seamless integration between Blender and Neovim.
+**Develop Blender add-ons with Neovim.**
+
+Blender.nvim streamlines the add-on development process by launching Blender
+directly from Neovim and automatically installing your add-on. Then, after
+you've made some changes to your code and want to reload your add-on, a single
+command will refresh it without needing to restart Blender.
 
 > [!NOTE]
 > Blender.nvim is experimental and under active development.
@@ -15,8 +20,8 @@ https://github.com/b0o/blender.nvim/assets/21299126/961f4bb9-4924-4bee-8540-d839
 ## Features
 
 - **Run your add-on directly from Neovim**
-- **Refresh your add-on with a single Neovim command**
-- **Reload your add-on automatically when a file changes**
+- **Refresh your add-on with a single Neovim command** (TODO)
+- **Reload your add-on automatically when a file changes** (TODO)
 - **Create profiles for different versions of Blender**
 - **Debug your add-on with DAP**
 - **Support for Python virtual environments**
