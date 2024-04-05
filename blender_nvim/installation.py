@@ -2,7 +2,6 @@ import os
 import subprocess
 import sys
 import textwrap
-from pathlib import Path
 
 from . import handle_fatal_error
 from .environment import python_path, use_own_python
