@@ -51,15 +51,16 @@ def install_package(name):
 
 
 def install_pip():
-    # try ensurepip before get-pip.py
-    if module_can_be_imported("ensurepip"):
-        subprocess.run(
-            [str(python_path), "-m", "ensurepip", "--upgrade"], cwd=cwd_for_subprocesses
-        )
-        return
-    # pip can not necessarily be imported into Blender after this
-    get_pip_path = Path(__file__).parent / "external" / "get-pip.py"
-    subprocess.run([str(python_path), str(get_pip_path)], cwd=cwd_for_subprocesses)
+    raise NotImplementedError("install_pip")
+    # # try ensurepip before get-pip.py
+    # if module_can_be_imported("ensurepip"):
+    #     subprocess.run(
+    #         [str(python_path), "-m", "ensurepip", "--upgrade"], cwd=cwd_for_subprocesses
+    #     )
+    #     return
+    # # pip can not necessarily be imported into Blender after this
+    # get_pip_path = Path(__file__).parent / "external" / "get-pip.py"
+    # subprocess.run([str(python_path), str(get_pip_path)], cwd=cwd_for_subprocesses)
 
 
 def get_package_install_directory() -> str:
