@@ -17,6 +17,8 @@ command will refresh it without needing to restart Blender.
 
 https://github.com/b0o/blender.nvim/assets/21299126/961f4bb9-4924-4bee-8540-d8392036c482
 
+https://github.com/b0o/blender.nvim/assets/21299126/cce964de-7cb6-4dfb-86d4-2cf2978b36f3
+
 ## Features
 
 - **Run your add-on directly from Neovim**
