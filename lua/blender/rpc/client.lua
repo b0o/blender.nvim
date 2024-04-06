@@ -6,6 +6,7 @@ local host = 'localhost'
 
 ---@class RpcClientParams
 ---@field blender_port integer
+---@field debugpy_enabled boolean
 ---@field debugpy_port integer
 ---@field python_exe string
 ---@field blender_path string
@@ -20,6 +21,7 @@ local RpcClient = {}
 function RpcClient.new(params)
   local self = setmetatable({
     blender_port = params.blender_port,
+    debugpy_enabled = params.debugpy_enabled,
     debugpy_port = params.debugpy_port,
     python_exe = params.python_exe,
     blender_path = params.blender_path,

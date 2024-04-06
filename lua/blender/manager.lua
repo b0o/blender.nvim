@@ -1,18 +1,19 @@
+---@class Manager
+---@field task Task?
 local M = {
-  ---@type Task?
   task = nil,
 }
 
 ---@param task Task
-M.start = function(task)
+M.start_task = function(task)
   if M.has_running_task() then
-    M.stop()
+    M.stop_task()
   end
   M.task = task
   M.task:start()
 end
 
-M.stop = function()
+M.stop_task = function()
   if M.has_running_task() then
     M.task:stop()
   end

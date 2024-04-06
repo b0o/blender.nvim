@@ -6,7 +6,6 @@ import time
 from functools import partial
 from typing import List, Optional
 
-import debugpy
 import flask
 import pynvim
 from pynvim.msgpack_rpc.event_loop import base as pynvim_event_loop_base
@@ -19,25 +18,29 @@ from .utils import run_in_main_thread
 # SEE: https://github.com/neovim/pynvim/issues/264
 pynvim_event_loop_base.default_int_handler = lambda _: None
 
-EDITOR_ADDRESS: str
-OWN_SERVER_PORT: int
-DEBUGPY_PORT: int
+EDITOR_ADDRESS: str = ""
+OWN_SERVER_PORT: int = -1
+DEBUGPY_PORT: int = -1
 
 
-def setup(address, path_mappings):
+def setup(address: str, path_mappings: List[List[str]], enable_debugpy: bool):
     global EDITOR_ADDRESS, OWN_SERVER_PORT, DEBUGPY_PORT, nvim
     EDITOR_ADDRESS = address
 
     OWN_SERVER_PORT = start_own_server()
-    DEBUGPY_PORT = start_debug_server()
+    if enable_debugpy:
+        DEBUGPY_PORT = start_debug_server()
 
     print(f"Attaching to Nvim at {address}")
     nvim = pynvim.attach("socket", path=address)
     send_connection_information(path_mappings)
 
-    print("Waiting for debug client.")
-    debugpy.wait_for_client()
-    print("Debug client attached.")
+    if enable_debugpy:
+        import debugpy
+
+        print("Waiting for debug client.")
+        debugpy.wait_for_client()
+        print("Debug client attached.")
 
 
 def start_own_server():
@@ -62,6 +65,8 @@ def start_own_server():
 
 
 def start_debug_server():
+    import debugpy
+
     while True:
         port = get_random_port()
         try:
@@ -125,6 +130,7 @@ def send_connection_information(path_mappings):
         {
             "type": "setup",
             "blender_port": OWN_SERVER_PORT,
+            "debugpy_enabled": DEBUGPY_PORT != -1,
             "debugpy_port": DEBUGPY_PORT,
             "python_exe": sys.executable,
             "blender_path": str(blender_path),

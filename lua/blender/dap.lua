@@ -8,6 +8,10 @@ local M = {
   session = nil,
 }
 
+M.is_available = function()
+  return has_dap
+end
+
 ---@class BlenderDapAttachArgs
 ---@field host string
 ---@field port number
@@ -17,7 +21,7 @@ local M = {
 
 ---@param args BlenderDapAttachArgs
 M.attach = function(args)
-  if not has_dap then
+  if not M.is_available() then
     return false
   end
   local adapter = {
@@ -49,7 +53,7 @@ local get_default_buf = function()
   if not default_buf or not vim.api.nvim_buf_is_valid(default_buf) then
     buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
-      has_dap and 'No active debug session' or 'nvim-dap not installed',
+      M.is_available() and 'No active debug session' or 'nvim-dap not installed',
     })
   end
   default_buf = buf
@@ -57,7 +61,7 @@ local get_default_buf = function()
 end
 
 M.get_buf = function()
-  if not has_dap then
+  if not M.is_available() then
     return get_default_buf()
   end
   local buf = vim.fn.bufnr 'dap-repl'

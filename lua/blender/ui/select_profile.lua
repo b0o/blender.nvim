@@ -2,6 +2,7 @@ local n = require 'nui-components'
 
 local config = require 'blender.config'
 local hl = require('blender.highlights').groups
+local Profile = require 'blender.profile'
 
 local current_renderer
 
@@ -26,7 +27,7 @@ return function(on_select)
   local options = vim
     .iter(ipairs(config.blender.profiles))
     :map(function(i, profile)
-      return { id = i, profile = profile }
+      return { id = i, profile = Profile.new(profile) }
     end)
     :totable()
 
@@ -47,10 +48,17 @@ return function(on_select)
         padding = { top = 0, right = -3, bottom = 0, left = 1 },
         truncate = true,
         lines = signal.selected:map(function(profile)
-          return {
+          local res = {
             n.line(n.text('Name:       ', hl.BlenderAccent), profile.name),
             n.line(n.text('Command:    ', hl.BlenderAccent), table.concat(profile:get_full_cmd() or {}, ' ')),
           }
+          if profile.enable_dap ~= nil then
+            table.insert(
+              res,
+              n.line(n.text('DAP:        ', hl.BlenderAccent), profile.enable_dap and 'enabled' or 'disabled')
+            )
+          end
+          return res
         end),
       },
       n.select {

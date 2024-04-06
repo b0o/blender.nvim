@@ -76,7 +76,7 @@ return function(props)
         signal.task_id = task.id
         signal.task_change_count = 0
         setup_on_change_listener()
-        manager.start(new_task)
+        manager.start_task(new_task)
       end,
     },
   }
@@ -101,6 +101,20 @@ return function(props)
         padding = { top = 0, right = -3, bottom = 0, left = 1 },
         truncate = true,
         lines = signal.task_change_count:map(function()
+          local debugger_text
+          if task.debugger_attached then
+            debugger_text = 'Attached'
+          elseif task.client then
+            if task.client.debugpy_enabled then
+              debugger_text = 'Not attached'
+            elseif dap.is_available() then
+              debugger_text = 'Disabled'
+            else
+              debugger_text = 'Disabled (missing nvim-dap)'
+            end
+          else
+            debugger_text = 'N/a'
+          end
           return {
             n.line(n.text('Id:       ', hl.BlenderAccent), tostring(task.id)),
             n.line(n.text('Profile:  ', hl.BlenderAccent), task.profile.name),
@@ -113,7 +127,7 @@ return function(props)
               n.text('PID:      ', hl.BlenderAccent),
               tostring(task.status == 'running' and task:get_pid() or 'N/a')
             ),
-            n.line(n.text('Debugger: ', hl.BlenderAccent), task.debugger_attached and 'Attached' or 'N/a'),
+            n.line(n.text('Debugger: ', hl.BlenderAccent), debugger_text),
           }
         end),
       },

@@ -53,6 +53,7 @@ M.handlers = {}
 ---@class RpcSetupParams : RpcMessage
 ---@field type 'setup'
 ---@field blender_port number
+---@field debugpy_enabled boolean
 ---@field debugpy_port number
 ---@field python_exe string
 ---@field blender_path string
@@ -64,6 +65,7 @@ M.handlers = {}
 M.handlers.setup = function(params)
   vim.validate {
     blender_port = { params.blender_port, 'number' },
+    debugpy_enabled = { params.debugpy_enabled, 'boolean' },
     debugpy_port = { params.debugpy_port, 'number' },
     python_exe = { params.python_exe, 'string' },
     blender_path = { params.blender_path, 'string' },
@@ -74,6 +76,7 @@ M.handlers.setup = function(params)
   local task_id = tonumber(params.task_id) or 0
   local rpc_client = RpcClient.new {
     blender_port = params.blender_port,
+    debugpy_enabled = params.debugpy_enabled,
     debugpy_port = params.debugpy_port,
     python_exe = params.python_exe,
     blender_path = params.blender_path,

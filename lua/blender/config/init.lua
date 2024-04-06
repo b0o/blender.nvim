@@ -1,24 +1,20 @@
-local Profile = require 'blender.profile'
 local Schema = require 'blender.config.schema'
 local vx = require 'blender.config.validate'
 local tx = require 'blender.config.transform'
-local util = require 'blender.util'
 
 local M = {}
-
----@class Config
----@field blender BlenderConfig
 
 ---@class BlenderConfig
 ---@field profiles List<ProfileParams>
 
----@class BlenderConfigResult
----@field profiles List<Profile>
+---@class DapConfig
+---@field enabled boolean
 
----@class ConfigResult : Config
----@field blender BlenderConfigResult
+---@class Config
+---@field blender BlenderConfig
+---@field dap DapConfig
 
----@class ConfigModule : ConfigResult
+---@class ConfigModule : Config
 ---@field setup fun(config: Config)
 ---@field reset fun()
 ---@field schema table
@@ -35,18 +31,13 @@ M.schema = Schema(function(s)
           cmd = vx.any { vx.string, vx.list.of(vx.string) },
           use_launcher = vx.optional(vx.bool),
           extra_args = vx.optional(vx.list.of(vx.string)),
+          enable_dap = vx.optional(vx.bool),
         }),
-        {
-          transform = function(val, entry)
-            local extended = tx.extend(val, entry)
-            local res = {}
-            for _, profile in ipairs(extended) do
-              table.insert(res, Profile.new(profile))
-            end
-            return res
-          end,
-        }
+        { transform = tx.extend }
       ),
+    },
+    dap = {
+      enabled = s:entry(true, vx.bool),
     },
   }, {
     deprecated = {
@@ -68,7 +59,7 @@ local mt = setmetatable({
         [Schema.result.DEPRECATED] = 'deprecated: %s',
       })[schema]
       local msg = fmt_str:format(err)
-      util.notify('Config error: ' .. msg, 'ERROR')
+      require('blender.util').notify('Config error: ' .. msg, 'ERROR')
       return
     end
     M.config = schema

@@ -183,7 +183,7 @@ end
 ---@param client RpcClient
 function Task:attach_client(client)
   self.client = client
-  if client.debugpy_port then
+  if client.debugpy_enabled then
     local dap_attached = require('blender.dap').attach {
       host = '127.0.0.1', -- TODO: Make dynamic
       port = client.debugpy_port,

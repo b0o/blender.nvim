@@ -2,15 +2,19 @@ local manager = require 'blender.manager'
 local Task = require 'blender.task'
 local rpc = require 'blender.rpc'
 local util = require 'blender.util'
+local dap = require 'blender.dap'
+local config = require 'blender.config'
 
 ---@class ProfileParams
 ---@field name string # The name of the profile
 ---@field cmd string | List<string> # The command to run
 ---@field use_launcher? boolean # Whether to append the launcher script to the command
 ---@field extra_args? List<string> # Extra arguments to pass to the command
+---@field enable_dap? boolean # Whether to enable debugging with DAP
 
 ---@class Profile : ProfileParams
 ---@field cmd List<string>
+-- -@field enable_dap boolean
 local Profile = {}
 
 local launcher = 'launch_blender.py'
@@ -32,6 +36,7 @@ function Profile.new(params)
     cmd = { params.cmd, { 'string', 'table' } },
     use_launcher = { params.use_launcher, 'boolean', true },
     extra_args = { params.extra_args, 'table', true },
+    enable_dap = { params.enable_dap, 'boolean', true },
   }
   ---@type List<string>
   local cmd = type(params.cmd) == 'table' and params.cmd or { params.cmd }
@@ -56,6 +61,7 @@ function Profile.new(params)
     cmd = cmd,
     use_launcher = use_launcher,
     extra_args = params.extra_args,
+    enable_dap = params.enable_dap,
   }, { __index = Profile })
 end
 
@@ -137,17 +143,27 @@ function Profile:launch()
   if not launch_cmd then
     return
   end
+  local path_mappings = self:get_path_mappings()
+  local enable_dap
+  if not dap.is_available() then
+    enable_dap = false
+  elseif self.enable_dap ~= nil then
+    enable_dap = self.enable_dap
+  else
+    enable_dap = config.dap.enabled
+  end
   local task = Task.new {
     cmd = launch_cmd,
     cwd = vim.fn.getcwd(),
     env = vim.tbl_extend('force', vim.fn.environ(), {
-      ADDONS_TO_LOAD = vim.json.encode(self:get_path_mappings()),
+      ENABLE_DEBUGPY = enable_dap and 'yes' or 'no',
+      ADDONS_TO_LOAD = vim.json.encode(path_mappings),
       EDITOR_ADDR = rpc.get_server():get_addr(),
       ALLOW_MODIFY_EXTERNAL_PYTHON = 'no',
     }),
     profile = self,
   }
-  manager.start(task)
+  manager.start_task(task)
   return task
 end
 
