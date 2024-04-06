@@ -18,9 +18,7 @@ M.show_launcher = function()
     if not task then
       return
     end
-    ui.manage_task {
-      task = task,
-    }
+    ui.manage_task { task = task }
   end)
 end
 
@@ -29,12 +27,7 @@ M.show_task_manager = function()
     util.notify('No Blender task', 'INFO')
     return
   end
-  ui.manage_task {
-    task = manager.task,
-    on_select = function()
-      -- TODO: Implement
-    end,
-  }
+  ui.manage_task { task = manager.task }
 end
 
 M.reload_addon = function()
