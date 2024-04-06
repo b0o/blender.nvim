@@ -7,14 +7,31 @@ local M = {}
 ---@class BlenderConfig
 ---@field profiles List<ProfileParams>
 
+---@class BlenderConfigResult : BlenderConfig
+
 ---@class DapConfig
 ---@field enabled boolean
+
+---@class DapConfigResult : DapConfig
+
+---@class NotifyConfig
+---@field enabled boolean
+---@field verbosity 'TRACE' | 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'OFF' | 0 | 1 | 2 | 3 | 4 | 5
+
+---@class NotifyConfigResult : NotifyConfig
+---@field verbosity 0 | 1 | 2 | 3 | 4 | 5
 
 ---@class Config
 ---@field blender BlenderConfig
 ---@field dap DapConfig
+---@field notify NotifyConfig
 
----@class ConfigModule : Config
+---@class ConfigResult
+---@field blender BlenderConfigResult
+---@field dap DapConfigResult
+---@field notify NotifyConfigResult
+
+---@class ConfigModule : ConfigResult
 ---@field setup fun(config: Config)
 ---@field reset fun()
 ---@field schema table
@@ -38,6 +55,21 @@ M.schema = Schema(function(s)
     },
     dap = {
       enabled = s:entry(true, vx.bool),
+    },
+    notify = {
+      enabled = s:entry(true, vx.bool),
+      verbosity = s:entry(
+        vim.log.levels.INFO,
+        vx.any { 'TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'OFF', 0, 1, 2, 3, 4, 5 },
+        {
+          transform = function(v)
+            if type(v) == 'string' and vim.log.levels[v] then
+              return vim.log.levels[v]
+            end
+            return v
+          end,
+        }
+      ),
     },
   }, {
     deprecated = {

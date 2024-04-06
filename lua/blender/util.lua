@@ -1,3 +1,5 @@
+local config = require 'blender.config'
+
 local M = {}
 
 ---@param msg string
@@ -5,7 +7,9 @@ local M = {}
 M.notify = function(msg, level)
   local lvl = type(level) == 'string' and vim.log.levels[level] or level
   ---@cast lvl integer
-  vim.notify('[Blender.nvim] ' .. msg, lvl)
+  if config.notify.enabled and config.notify.verbosity <= lvl then
+    vim.notify('[Blender.nvim] ' .. msg, lvl)
+  end
 end
 
 ---Run a function in the context of a window with a specific size
