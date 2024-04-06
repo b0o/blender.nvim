@@ -74,17 +74,17 @@ Includes code from the following projects:
   - The jobstart terminal strategy is based on code from overseer.nvim.
   - License: MIT
 
-Contributors:
+### Contributors
 
 - [b0o](https://github.com/b0o)
 - [willothy](https://github.com/willothy)
 
-Acknowledgements:
+### Acknowledgements
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim): UI component library for Neovim
 - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim): UI framework built on top of nui.nvim
 
-License:
+### License
 
 &copy; 2024 Maddison Hellstrom, [MIT License](https://mit-license.org).
 
