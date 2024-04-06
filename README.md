@@ -64,10 +64,6 @@ use {
 
 ## License & Credits
 
-&copy; 2024 Maddison Hellstrom, [MIT License](https://mit-license.org).
-
-Blender is a registered trademark (®) of the Blender Foundation in EU and USA. This project is not affiliated with or endorsed by the Blender Foundation.
-
 Includes code from the following projects:
 
 - [JacquesLucke/blender_vscode](https://github.com/JacquesLucke/blender_vscode)
@@ -87,3 +83,9 @@ Acknowledgements:
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim): UI component library for Neovim
 - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim): UI framework built on top of nui.nvim
+
+License:
+
+&copy; 2024 Maddison Hellstrom, [MIT License](https://mit-license.org).
+
+Blender is a registered trademark (®) of the Blender Foundation in EU and USA. This project is not affiliated with or endorsed by the Blender Foundation.
