@@ -58,6 +58,7 @@ use {
     "grapp-dev/nui-components.nvim",
     'nvim-lua/plenary.nvim',
     "mfussenegger/nvim-dap", -- optional
+    "LiadOz/nvim-dap-repl-highlights", -- optional, for syntax highlighting in the DAP REPL
   },
 }
 ```

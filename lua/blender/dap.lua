@@ -83,8 +83,17 @@ M.get_buf = function()
   if not buf or buf == -1 then
     return get_default_buf()
   end
-  vim.api.nvim_buf_call(buf, function()
-    vim.cmd 'normal! i'
+  vim.schedule(function()
+    vim.api.nvim_buf_call(buf, function()
+      -- If user has nvim-dap-repl-highlights installed, setup the highlights for python
+      local ok, dap_repl_hl = pcall(require, 'nvim-dap-repl-highlights')
+      if ok then
+        vim.notify 'setting up dap highlights'
+        dap_repl_hl.setup_highlights 'python'
+      end
+      -- Fix issue where dap prompt doesn't show up at first
+      vim.cmd 'normal! i'
+    end)
   end)
   return buf
 end
