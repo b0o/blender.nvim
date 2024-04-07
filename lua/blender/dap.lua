@@ -88,7 +88,6 @@ M.get_buf = function()
       -- If user has nvim-dap-repl-highlights installed, setup the highlights for python
       local ok, dap_repl_hl = pcall(require, 'nvim-dap-repl-highlights')
       if ok then
-        vim.notify 'setting up dap highlights'
         dap_repl_hl.setup_highlights 'python'
       end
       -- Fix issue where dap prompt doesn't show up at first
