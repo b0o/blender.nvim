@@ -147,10 +147,6 @@ function Schema:default(opts)
   return self:parse(nil, nil, nil, nil, opts)
 end
 
-function Schema:raw()
-  return require('incline.util').tbl_plain(self:default { raw = true })
-end
-
 function Schema:is_deprecated_field(path)
   local res = self.deprecated.fields[path]
   if not res then
