@@ -62,16 +62,6 @@ end
 
 function Schema:parse_entry(data, fallback, schema, path, opts)
   opts = opts or {}
-  if data == nil then
-    if fallback ~= nil then
-      data = fallback
-    else
-      data = schema.default
-    end
-  end
-  if opts.raw then
-    return data
-  end
   local transform
   if type(data) == 'table' and data.parent == self then
     if data.transform then
@@ -82,6 +72,16 @@ function Schema:parse_entry(data, fallback, schema, path, opts)
   transform = transform or schema.transform
   if transform then
     data = transform(data, schema, self)
+  end
+  if data == nil then
+    if fallback ~= nil then
+      data = fallback
+    else
+      data = schema.default
+    end
+  end
+  if opts.raw then
+    return data
   end
   local ok, result, msg = self:validate_entry(data, schema, path)
   if not ok then
