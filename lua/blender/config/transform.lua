@@ -1,6 +1,9 @@
 local M = {}
 
 M.extend = function(val, entry)
+  if val == nil then
+    return entry.default
+  end
   if type(val) ~= 'table' then
     return val
   end
@@ -13,8 +16,8 @@ M.extend = function(val, entry)
   end
 end
 
-M.replace = function(val)
-  return val
+M.replace = function(val, entry)
+  return val ~= nil and val or entry.default
 end
 
 M.reset = function(_, entry)
