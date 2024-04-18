@@ -89,6 +89,29 @@ require("blender").setup {
 }
 ```
 
+The `setup()` function can be called multiple times, and the configuration will be merged.
+
+This comes in handy for using `.nvim.lua` ([`:help exrc`](https://neovim.io/doc/user/options.html#'exrc')) files to configure Blender.nvim on a per-project basis. For example:
+
+```lua
+--- ~/projects/my-blender-addon/.nvim.lua
+local has_blender, blender = pcall(require, "blender")
+if has_blender then
+  blender.setup({
+    profiles = {
+      {
+        name = "my_addon",
+        cmd = "blender",
+        -- Open a specific file when launching Blender:
+        extra_args = { vim.env.HOME .. "/blender-files/my-test-file.blend" },
+      },
+    },
+  })
+end
+```
+
+For this to work, you need to ensure you have `:set exrc` in your Neovim configuration. Then, restart Neovim and, when prompted, allow the `.nvim.lua` file to be loaded.
+
 ## Usage
 
 ### Commands
