@@ -1,0 +1,7 @@
+---@class SignalValue<T>: {map: fun(self: table, fn: fun(val: T): any): SignalValue<T>}
+---@class SignalValue<T>: {skip: fun(self: table, n: number): SignalValue<T>}
+---@class SignalValue<T>: {get_value: fun(self: table): T}
+---@class SignalValue<T>: {combine_latest: fun(self: table, ...: any): SignalValue<T>}
+---@class SignalValue<T>: {observe: fun(self: table, on_next: fun(val: T): nil): SignalValue<T>}
+---@class SignalValue<T>: {unsubscribe: fun(self: table): nil}
+---@class SignalValue<T>: {filter: fun(self: table, fn: fun(val: T): boolean): SignalValue<T>}

@@ -1,6 +1,6 @@
-local util = require 'blender.util'
 local manager = require 'blender.manager'
 local RpcClient = require 'blender.rpc.client'
+local notify = require 'blender.notify'
 
 local M = {
   ---@type Server?
@@ -11,7 +11,7 @@ local M = {
 ---@field private addr? string
 local Server = {}
 
-function Server.new()
+function Server.create()
   local self = setmetatable({
     addr = nil,
   }, { __index = Server })
@@ -40,7 +40,7 @@ end
 
 M.get_server = function()
   if M.server == nil then
-    M.server = Server.new()
+    M.server = Server.create()
   end
   return M.server
 end
@@ -74,7 +74,7 @@ M.handlers.setup = function(params)
     task_id = { params.task_id, 'string' },
   }
   local task_id = tonumber(params.task_id) or 0
-  local rpc_client = RpcClient.new {
+  local rpc_client = RpcClient.create {
     blender_port = params.blender_port,
     debugpy_enabled = params.debugpy_enabled,
     debugpy_port = params.debugpy_port,
@@ -83,7 +83,10 @@ M.handlers.setup = function(params)
     scripts_folder = params.scripts_folder,
     path_mappings = params.path_mappings,
   }
-  manager.attach(task_id, rpc_client)
+  local running_task = manager.get_running_task()
+  if running_task and running_task.id == task_id then
+    running_task:attach_client(rpc_client)
+  end
 end
 
 ---@class RpcAddonUpdatedParams : RpcMessage
@@ -91,14 +94,15 @@ end
 
 ---@param params RpcAddonUpdatedParams
 M.handlers.addonUpdated = function(params)
-  util.notify('Addon updated', 'INFO')
+  local _ = params
+  notify('Addon updated', 'TRACE')
 end
 
 ---@param msg RpcMessage
 M.handle = function(msg)
   local handler = M.handlers[msg.type]
   if not handler then
-    util.notify('Received unknown RPC message type: "' .. msg.type .. '"', 'ERROR')
+    notify('Received unknown RPC message type: "' .. msg.type .. '"', 'ERROR')
     return
   end
   vim.schedule(function()

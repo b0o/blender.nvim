@@ -21,15 +21,22 @@ local M = {}
 ---@class NotifyConfigResult : NotifyConfig
 ---@field verbosity 0 | 1 | 2 | 3 | 4 | 5
 
+---@class WatchConfig
+---@field enabled boolean
+
+---@class WatchConfigResult : WatchConfig
+
 ---@class Config
 ---@field blender BlenderConfig
 ---@field dap DapConfig
 ---@field notify NotifyConfig
+---@field watch WatchConfig
 
 ---@class ConfigResult
 ---@field blender BlenderConfigResult
 ---@field dap DapConfigResult
 ---@field notify NotifyConfigResult
+---@field watch WatchConfigResult
 
 ---@class ConfigModule : ConfigResult
 ---@field setup fun(config: Config)
@@ -41,7 +48,7 @@ M.schema = Schema(function(s)
     blender = {
       profiles = s:entry(
         {
-          { name = 'blender', cmd = '/usr/bin/blender' },
+          { name = 'blender', cmd = 'blender' },
         },
         vx.list.of(vx.table.of_all {
           name = vx.string,
@@ -49,6 +56,7 @@ M.schema = Schema(function(s)
           use_launcher = vx.optional(vx.bool),
           extra_args = vx.optional(vx.list.of(vx.string)),
           enable_dap = vx.optional(vx.bool),
+          watch = vx.optional(vx.bool),
         }),
         { transform = tx.extend }
       ),
@@ -71,6 +79,9 @@ M.schema = Schema(function(s)
         }
       ),
     },
+    watch = {
+      enabled = s:entry(true, vx.bool),
+    },
   }, {
     deprecated = {
       fields = {},
@@ -90,8 +101,7 @@ local mt = setmetatable({
         [Schema.result.INVALID_LEAF] = 'invalid value for field "%s": expected table',
         [Schema.result.DEPRECATED] = 'deprecated: %s',
       })[schema]
-      local msg = fmt_str:format(err)
-      require('blender.util').notify('Config error: ' .. msg, 'ERROR')
+      vim.notify('[Blender.nvim] ' .. fmt_str:format(err), vim.log.levels.ERROR)
       return
     end
     M.config = schema

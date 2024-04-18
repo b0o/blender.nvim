@@ -1,16 +1,4 @@
-local config = require 'blender.config'
-
 local M = {}
-
----@param msg string
----@param level 'TRACE' | 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'OFF' | 0 | 1 | 2 | 3 | 4 | 5
-M.notify = function(msg, level)
-  local lvl = type(level) == 'string' and vim.log.levels[level] or level
-  ---@cast lvl integer
-  if config.notify.enabled and config.notify.verbosity <= lvl then
-    vim.notify('[Blender.nvim] ' .. msg, lvl)
-  end
-end
 
 ---Run a function in the context of a window with a specific size
 ---Useful when instantiating a terminal with nvim_open_term

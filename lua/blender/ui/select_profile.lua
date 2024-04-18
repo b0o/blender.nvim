@@ -4,40 +4,40 @@ local config = require 'blender.config'
 local hl = require('blender.highlights').groups
 local Profile = require 'blender.profile'
 
-local current_renderer
+local instance
 
 ---@param on_select fun(profile: Profile): nil
 return function(on_select)
-  -- only allow one instance of the profile selector
-  if current_renderer then
-    current_renderer:close()
-    current_renderer = nil
+  if instance then
+    instance:close()
+    instance = nil
   end
 
   local renderer = n.create_renderer {
     width = math.min(vim.o.columns, 64),
     height = math.min(vim.o.lines, 20),
-    on_unmount = function()
-      current_renderer = nil
-    end,
   }
-  current_renderer = renderer
+
+  renderer:on_mount(function()
+    instance = renderer
+  end)
+  renderer:on_unmount(function()
+    instance = nil
+  end)
 
   ---@type List<{id: number, profile: Profile}>
   local options = vim
     .iter(ipairs(config.blender.profiles))
     :map(function(i, profile)
-      return { id = i, profile = Profile.new(profile) }
+      return { id = i, profile = Profile.create(profile) }
     end)
     :totable()
 
   ---@type {selected: SignalValue<Profile>}
   local signal = n.create_signal { selected = options[1].profile }
 
-  renderer:render(
-    --
-    n.rows(
-
+  local body = function()
+    return n.rows(
       n.paragraph {
         is_focusable = false,
         border_label = {
@@ -45,7 +45,7 @@ return function(on_select)
           icon = '󰂫',
           align = 'center',
         },
-        padding = { top = 0, right = -3, bottom = 0, left = 1 },
+        padding = { top = 0, right = 1, bottom = 0, left = 1 },
         truncate = true,
         lines = signal.selected:map(function(profile)
           local res = {
@@ -127,5 +127,7 @@ return function(on_select)
         },
       }
     )
-  )
+  end
+
+  renderer:render(body)
 end

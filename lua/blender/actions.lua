@@ -1,6 +1,6 @@
-local util = require 'blender.util'
 local ui = require 'blender.ui'
 local manager = require 'blender.manager'
+local notify = require 'blender.notify'
 
 local M = {}
 
@@ -24,7 +24,7 @@ end
 
 M.show_task_manager = function()
   if not manager.task then
-    util.notify('No Blender task', 'ERROR')
+    notify('No Blender task', 'ERROR')
     return
   end
   ui.manage_task { task = manager.task }
@@ -33,14 +33,35 @@ end
 M.reload_addon = function()
   local running_task = manager.get_running_task()
   if not running_task then
-    util.notify('No running blender task', 'ERROR')
+    notify('No running blender task', 'ERROR')
     return
   end
   if not running_task.client then
-    util.notify('No RPC client attached to the running task', 'ERROR')
+    notify('No RPC client attached to the running task', 'ERROR')
     return
   end
   running_task.client:reload_addon()
+end
+
+---Start watching for changes in the addon files
+---Note: When the task exits, the watch is removed.
+---@param patterns? string|string[] # pattern(s) matching files to watch for changes
+M.watch = function(patterns)
+  local running_task = manager.get_running_task()
+  if not running_task then
+    notify('No running blender task', 'ERROR')
+    return
+  end
+  running_task:watch(patterns or running_task.profile:get_watch_patterns())
+end
+
+M.unwatch = function()
+  local running_task = manager.get_running_task()
+  if not running_task then
+    notify('No running blender task', 'ERROR')
+    return
+  end
+  running_task:unwatch()
 end
 
 return M

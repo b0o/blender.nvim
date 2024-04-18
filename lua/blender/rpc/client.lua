@@ -18,7 +18,7 @@ local RpcClient = {}
 
 ---@param params RpcClientParams
 ---@return RpcClient
-function RpcClient.new(params)
+function RpcClient.create(params)
   local self = setmetatable({
     blender_port = params.blender_port,
     debugpy_enabled = params.debugpy_enabled,

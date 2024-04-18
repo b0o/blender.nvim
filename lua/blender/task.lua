@@ -1,69 +1,127 @@
-local util = require 'blender.util'
+local Signal = require 'nui-components.signal'
+
+local utils = require 'blender.utils'
+local signal_utils = require 'blender.signal.utils'
+local dap = require 'blender.dap'
+local notify = require 'blender.notify'
+
+local augroup = vim.api.nvim_create_augroup('blender.task', { clear = true })
+
+---@alias TaskEvent 'change' | 'start' | 'start_fail' | 'client_attach' | 'dap_attach' | 'exit'
+
+---@alias TaskStatus 'waiting' | 'failed' | 'running' | 'exited'
+
+---@alias TaskSignalValue SignalValue<Task>
+
+---@class TaskSignals
+---@field change TaskSignalValue
+---@field start TaskSignalValue
+---@field start_fail TaskSignalValue
+---@field client_attach TaskSignalValue
+---@field dap_attach TaskSignalValue
+---@field exit TaskSignalValue
 
 ---@class TaskParams
 ---@field profile Profile
 ---@field cmd List<string>
 ---@field cwd string
 ---@field env table
----@field on_start? fun(Task): nil
 
----@class OutputLine
----@field data string
----@field channel 'stdout' | 'stderr'
+---@class TaskWatchStatus
+---@field autocmd_id integer
+---@field pattern string[]
 
 ---@class Task : TaskParams
 ---@field id integer
+---@field status TaskStatus
+---@field client? RpcClient
+---@field exit_code? integer
+---@field debugger_attached boolean
+---@field dap_repl_buf? integer
+---@field watch_status? TaskWatchStatus
+---@field private _signals TaskSignals
 ---@field private _job_id? integer
 ---@field private _bufnr? integer
 ---@field private _term_id? integer
----@field status 'waiting' | 'failed' | 'running' | 'exited'
----@field exit_code? integer
----@field output List<OutputLine>
----@field private _listeners table<number, fun(): nil>
----@field debugger_attached boolean
----@field client? RpcClient
 local Task = {}
 
-local last_id = 0
+local next_id = 1
 
 ---@param params TaskParams
 ---@return Task
-function Task.new(params)
-  last_id = last_id + 1
+function Task.create(params)
+  local id = next_id
+  next_id = next_id + 1
+
   return setmetatable({
-    id = last_id,
+    id = id,
+
     profile = params.profile,
     cmd = params.cmd,
     cwd = params.cwd,
     env = params.env,
-    on_start = params.on_start,
-    job_id = nil,
+
+    status = 'waiting',
+    client = nil,
+    exit_code = nil,
+    debugger_attached = false,
+    dap_repl_buf = nil,
+    watch = nil,
+
+    _signals = {
+      change = Signal.create { val = nil },
+      start = Signal.create { val = nil },
+      start_fail = Signal.create { val = nil },
+      client_attach = Signal.create { val = nil },
+      dap_attach = Signal.create { val = nil },
+      exit = Signal.create { val = nil },
+    },
+    _job_id = nil,
     _bufnr = nil,
     _term_id = nil,
-    status = 'waiting',
-    exit_code = nil,
-    output = {},
-    _listeners = {},
-    debugger_attached = false,
   }, { __index = Task })
 end
 
-function Task:clone()
-  return Task.new {
-    profile = self.profile,
-    cmd = vim.deepcopy(self.cmd),
-    cwd = self.cwd,
-    env = vim.deepcopy(self.env),
-    on_start = self.on_start,
-  }
+---@class TaskOnParams
+---@field prime? boolean Whether to "prime" the signal; if true, will be immediately "primed" with nil as the first event
+
+---@param event TaskEvent
+---@param params? TaskOnParams
+---@return SignalValue<Task>
+function Task:on(event, params)
+  params = params or {}
+  ---@type SignalValue<Task>
+  local signal_value = self._signals[event].val
+  return signal_value:filter(function(val)
+    if params.prime == true then
+      return true
+    end
+    return val == self
+  end)
+end
+
+---@param event TaskEvent
+---@param fn fun(val: Task): nil
+---@return SignalValue<Task>
+function Task:once(event, fn)
+  return signal_utils.observe_once(self:on(event), fn)
+end
+
+---@param event TaskEvent|(TaskEvent | nil | boolean)[]
+function Task:_dispatch(event)
+  local events = type(event) == 'table' and event or { event }
+  for _, evt in pairs(events) do
+    if type(evt) == 'string' then
+      self._signals[evt].val = self
+    end
+  end
 end
 
 ---@param data List<string>
----@param channel 'stdout' | 'stderr'
-function Task:_handle_output(data, channel)
+function Task:_handle_output(data)
   pcall(vim.api.nvim_chan_send, self._term_id, table.concat(data, '\r\n'))
   vim.defer_fn(function()
-    util.terminal_tail_hack(self:get_buf())
+    utils.terminal_tail_hack(self:get_buf())
   end, 10)
 end
 
@@ -76,7 +134,7 @@ function Task:get_buf()
     self._bufnr = vim.api.nvim_create_buf(false, true)
     local mode = vim.api.nvim_get_mode().mode
     local term_id
-    util.buf_run_in_sized_win(self._bufnr, {
+    utils.buf_run_in_sized_win(self._bufnr, {
       width = vim.o.columns,
       height = vim.o.lines,
     }, function()
@@ -84,20 +142,20 @@ function Task:get_buf()
         on_input = function(_, _, _, data)
           pcall(vim.api.nvim_chan_send, self._job_id, data)
           vim.defer_fn(function()
-            util.terminal_tail_hack(self._bufnr)
+            utils.terminal_tail_hack(self._bufnr)
           end, 10)
         end,
       })
     end)
     self._term_id = term_id
-    util.hack_around_termopen_autocmd(mode)
+    utils.hack_around_termopen_autocmd(mode)
   end
   return self._bufnr
 end
 
 function Task:start()
   if self.status ~= 'waiting' then
-    util.notify('Task has already been started', 'WARN')
+    notify('Task has already been started', 'WARN')
     return
   end
   self:get_buf()
@@ -107,42 +165,42 @@ function Task:start()
       BLENDER_NVIM_TASK_ID = tostring(self.id),
     }, self.env),
     on_exit = function(_, code)
-      self.status = 'exited'
-      self.exit_code = code
-      self._job_id = nil
-      self.debugger_attached = false
-      if code == 0 then
-        util.notify('Task completed successfully', 'INFO')
-      else
-        util.notify('Task exited with code: ' .. code, 'ERROR')
-      end
-      self:_emit_on_change()
+      vim.schedule(function()
+        self.status = 'exited'
+        self.exit_code = code
+        self._job_id = nil
+        self.debugger_attached = false
+        if code == 0 then
+          notify('Task completed successfully', 'TRACE')
+        else
+          notify('Task exited with code: ' .. code, 'ERROR')
+        end
+        self:_dispatch { 'change', 'exit' }
+      end)
     end,
     pty = true,
     on_stdout = function(_, data, _)
-      self:_handle_output(data, 'stdout')
+      self:_handle_output(data)
     end,
     on_stderr = function(_, data, _)
-      self:_handle_output(data, 'stderr')
+      self:_handle_output(data)
     end,
   })
-
   if res == 0 then
-    util.notify('Failed to start task: invalid arguments or job table is full', 'ERROR')
+    notify('Failed to start task: invalid arguments or job table is full', 'ERROR')
     self.status = 'failed'
+    self:_dispatch { 'change', 'start_fail' }
     return
   end
   if res == -1 then
-    util.notify('Failed to start task: command is not executable', 'ERROR')
+    notify('Failed to start task: command is not executable', 'ERROR')
     self.status = 'failed'
+    self:_dispatch { 'change', 'start_fail' }
     return
   end
   self._job_id = res
   self.status = 'running'
-
-  if self.on_start then
-    self.on_start(self)
-  end
+  self:_dispatch { 'change', 'start' }
 end
 
 function Task:get_pid()
@@ -158,33 +216,18 @@ end
 
 function Task:stop()
   if self.status ~= 'running' then
-    util.notify('Task is not running', 'WARN')
+    notify('Task is not running', 'WARN')
     return
   end
   vim.fn.jobstop(self._job_id)
 end
 
-function Task:_emit_on_change()
-  for _, fn in pairs(self._listeners) do
-    fn()
-  end
-end
-
-function Task:on_change(fn)
-  local id = #self._listeners + 1
-  self._listeners[id] = fn
-  return id
-end
-
-function Task:off_change(id)
-  self._listeners[id] = nil
-end
-
 ---@param client RpcClient
 function Task:attach_client(client)
   self.client = client
+  local dap_attached
   if client.debugpy_enabled then
-    local dap_attached = require('blender.dap').attach {
+    dap_attached = require('blender.dap').attach {
       host = '127.0.0.1', -- TODO: Make dynamic
       port = client.debugpy_port,
       python_exe = client.python_exe,
@@ -192,12 +235,78 @@ function Task:attach_client(client)
       path_mappings = client.path_mappings,
     }
     if dap_attached then
-      self.debugger_attached = true
+      -- for some reason, we need to defer this in order for the injected syntax highlighting
+      -- to work, and using vim.schedule() doesn't work
+      vim.defer_fn(function()
+        local repl_buf = dap.get_repl_buf()
+        if repl_buf and vim.api.nvim_buf_is_valid(repl_buf) then
+          self.debugger_attached = true
+          self.dap_repl_buf = repl_buf
+          self:_dispatch { 'change', 'dap_attach' }
+        end
+      end, 0)
     end
   end
-  self:_emit_on_change()
+  self:_dispatch { 'change', 'client_attach' }
 end
 
 --TODO: Detect client/debugger detach
+
+---Watch for changes, sending a reload command to the client when a
+---buffer matching the pattern is written.
+---@param pattern string|string[]
+function Task:watch(pattern)
+  local pattern_list = type(pattern) == 'table' and pattern or { pattern }
+  if self.watch_status ~= nil then
+    --TODO: Determine whether we should keep this behavior or re-create the autocmd (might be useful if the user wants to change the watch pattern)
+    --TODO: check if autocmd is still valid
+    notify('Already watching for changes', 'WARN')
+    return
+  end
+  if self.status == 'waiting' then
+    self:once('start', function()
+      notify('Task started, setting up watch', 'ERROR')
+      self:watch(pattern_list)
+    end)
+    return
+  end
+  if self.status ~= 'running' then
+    notify('Cannot setup watch for ' .. self.status .. ' task', 'WARN')
+    return
+  end
+  --TODO: Make event(s) configurable
+  local autocmd_id = vim.api.nvim_create_autocmd('BufWritePost', {
+    group = augroup,
+    pattern = pattern_list,
+    callback = function()
+      if self.status ~= 'running' then
+        return true -- remove the autocmd
+      end
+      if self.client then
+        self.client:reload_addon()
+      end
+    end,
+  })
+  self:once('exit', function()
+    self:unwatch()
+  end)
+  self.watch_status = {
+    autocmd_id = autocmd_id,
+    pattern = pattern_list,
+  }
+  notify('Watching for changes in ' .. table.concat(pattern_list, ', '), 'TRACE')
+  self:_dispatch 'change'
+end
+
+function Task:unwatch()
+  if self.watch_status == nil then
+    notify('Not watching for changes', 'WARN')
+    return
+  end
+  vim.api.nvim_del_autocmd(self.watch_status.autocmd_id)
+  self.watch_status = nil
+  notify('Stopped watching for changes', 'TRACE')
+  self:_dispatch 'change'
+end
 
 return Task

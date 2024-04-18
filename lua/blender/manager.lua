@@ -1,3 +1,5 @@
+local notify = require 'blender.notify'
+
 ---@class Manager
 ---@field task Task?
 local M = {
@@ -7,7 +9,8 @@ local M = {
 ---@param task Task
 M.start_task = function(task)
   if M.has_running_task() then
-    M.stop_task()
+    notify('A task is already running', 'ERROR')
+    return
   end
   M.task = task
   M.task:start()
@@ -17,7 +20,6 @@ M.stop_task = function()
   if M.has_running_task() then
     M.task:stop()
   end
-  M.task = nil
 end
 
 M.has_running_task = function()
@@ -29,16 +31,6 @@ M.get_running_task = function()
     return M.task
   end
   return nil
-end
-
----@param task_id integer
----@param client RpcClient
-M.attach = function(task_id, client)
-  local running_task = M.get_running_task()
-  if not running_task or running_task.id ~= task_id then
-    return
-  end
-  running_task:attach_client(client)
 end
 
 return M

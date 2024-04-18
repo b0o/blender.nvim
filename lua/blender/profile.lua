@@ -1,9 +1,9 @@
 local manager = require 'blender.manager'
 local Task = require 'blender.task'
 local rpc = require 'blender.rpc'
-local util = require 'blender.util'
 local dap = require 'blender.dap'
 local config = require 'blender.config'
+local notify = require 'blender.notify'
 
 ---@class ProfileParams
 ---@field name string # The name of the profile
@@ -11,10 +11,10 @@ local config = require 'blender.config'
 ---@field use_launcher? boolean # Whether to append the launcher script to the command
 ---@field extra_args? List<string> # Extra arguments to pass to the command
 ---@field enable_dap? boolean # Whether to enable debugging with DAP
+---@field watch? boolean # Whether to watch for changes and reload the addon
 
 ---@class Profile : ProfileParams
 ---@field cmd List<string>
--- -@field enable_dap boolean
 local Profile = {}
 
 local launcher = 'launch_blender.py'
@@ -22,7 +22,7 @@ local launcher = 'launch_blender.py'
 local get_launcher_path = function()
   local launcher_path = vim.api.nvim_get_runtime_file(launcher, false)
   if not launcher_path or #launcher_path == 0 then
-    util.notify('Could not find launcher script: ' .. launcher, 'ERROR')
+    notify('Could not find launcher script: ' .. launcher, 'ERROR')
     return nil
   end
   return launcher_path[1]
@@ -30,13 +30,14 @@ end
 
 ---@param params ProfileParams
 ---@return Profile
-function Profile.new(params)
+function Profile.create(params)
   vim.validate {
     name = { params.name, 'string' },
     cmd = { params.cmd, { 'string', 'table' } },
     use_launcher = { params.use_launcher, 'boolean', true },
     extra_args = { params.extra_args, 'table', true },
     enable_dap = { params.enable_dap, 'boolean', true },
+    watch = { params.watch, 'boolean', true },
   }
   ---@type List<string>
   local cmd = type(params.cmd) == 'table' and params.cmd or { params.cmd }
@@ -62,6 +63,7 @@ function Profile.new(params)
     use_launcher = use_launcher,
     extra_args = params.extra_args,
     enable_dap = params.enable_dap,
+    watch = params.watch,
   }, { __index = Profile })
 end
 
@@ -104,6 +106,7 @@ local function is_addon_init(path)
 end
 
 function Profile:find_addon_dir()
+  --TODO: Make add-on detection more configurable
   local cwd = vim.fn.getcwd()
   local addon_dir = cwd
   if is_addon_init(vim.fn.fnamemodify(cwd, ':p') .. '/__init__.py') then
@@ -122,20 +125,30 @@ end
 ---@field load_dir string
 ---@field module_name string
 
----@return List<PathMapping>
-function Profile:get_path_mappings()
-  local load_dir = self:find_addon_dir()
-  if not load_dir then
-    util.notify('Could not find addon directory', 'WARN')
+---@return {addon_dir: string, path_mappings: List<PathMapping>}
+function Profile:get_paths()
+  local addon_dir = self:find_addon_dir()
+  if not addon_dir then
+    notify('Could not find addon directory', 'WARN')
     return {}
   end
-  local module_name = vim.fn.fnamemodify(load_dir, ':t')
+  local module_name = vim.fn.fnamemodify(addon_dir, ':t')
   return {
-    {
-      load_dir = load_dir,
-      module_name = module_name,
+    addon_dir = addon_dir,
+    path_mappings = {
+      {
+        load_dir = addon_dir,
+        module_name = module_name,
+      },
     },
   }
+end
+
+function Profile:get_watch_patterns()
+  local paths = self:get_paths()
+  -- TODO: Make this configurable
+  local addon_dir = paths.addon_dir
+  return { addon_dir .. '/*' }
 end
 
 function Profile:launch()
@@ -143,7 +156,7 @@ function Profile:launch()
   if not launch_cmd then
     return
   end
-  local path_mappings = self:get_path_mappings()
+  local paths = self:get_paths()
   local enable_dap
   if not dap.is_available() then
     enable_dap = false
@@ -152,18 +165,21 @@ function Profile:launch()
   else
     enable_dap = config.dap.enabled
   end
-  local task = Task.new {
+  local task = Task.create {
     cmd = launch_cmd,
     cwd = vim.fn.getcwd(),
     env = vim.tbl_extend('force', vim.fn.environ(), {
       ENABLE_DEBUGPY = enable_dap and 'yes' or 'no',
-      ADDONS_TO_LOAD = vim.json.encode(path_mappings),
+      ADDONS_TO_LOAD = vim.json.encode(paths.path_mappings),
       EDITOR_ADDR = rpc.get_server():get_addr(),
       ALLOW_MODIFY_EXTERNAL_PYTHON = 'no',
     }),
     profile = self,
   }
   manager.start_task(task)
+  if self.watch or (self.watch == nil and config.watch.enabled) then
+    task:watch(self:get_watch_patterns())
+  end
   return task
 end
 

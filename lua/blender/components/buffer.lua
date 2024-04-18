@@ -11,10 +11,11 @@ function Buffer:init(props, popup_options)
     fn.merge({
       buf = nil,
       autoscroll = false,
+      filetype = nil,
     }, props),
     fn.deep_merge({
       buf_options = {
-        filetype = props.filetype or '',
+        filetype = props.filetype,
       },
     }, popup_options)
   )
@@ -24,6 +25,7 @@ function Buffer:prop_types()
   return {
     buf = 'number',
     autoscroll = 'boolean',
+    filetype = 'string',
   }
 end
 
@@ -61,7 +63,8 @@ end
 
 function Buffer:on_update()
   local props = self:get_props()
-  if props.buf and self.bufnr ~= props.buf and self._.layout_ready then
+  local buf = props.buf
+  if buf and self.bufnr ~= buf and vim.api.nvim_buf_is_valid(buf) and self._.layout_ready then
     local is_focused = vim.api.nvim_get_current_win() == self.winid
     self:unmount()
     self:mount()
