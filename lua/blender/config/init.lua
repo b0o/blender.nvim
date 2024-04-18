@@ -4,11 +4,6 @@ local tx = require 'blender.config.transform'
 
 local M = {}
 
----@class BlenderConfig
----@field profiles List<ProfileParams>
-
----@class BlenderConfigResult : BlenderConfig
-
 ---@class DapConfig
 ---@field enabled boolean
 
@@ -27,13 +22,13 @@ local M = {}
 ---@class WatchConfigResult : WatchConfig
 
 ---@class Config
----@field blender BlenderConfig
+---@field profiles List<ProfileParams>
 ---@field dap DapConfig
 ---@field notify NotifyConfig
 ---@field watch WatchConfig
 
 ---@class ConfigResult
----@field blender BlenderConfigResult
+---@field profiles List<ProfileParams>
 ---@field dap DapConfigResult
 ---@field notify NotifyConfigResult
 ---@field watch WatchConfigResult
@@ -45,22 +40,20 @@ local M = {}
 
 M.schema = Schema(function(s)
   return {
-    blender = {
-      profiles = s:entry(
-        {
-          { name = 'blender', cmd = 'blender' },
-        },
-        vx.list.of(vx.table.of_all {
-          name = vx.string,
-          cmd = vx.any { vx.string, vx.list.of(vx.string) },
-          use_launcher = vx.optional(vx.bool),
-          extra_args = vx.optional(vx.list.of(vx.string)),
-          enable_dap = vx.optional(vx.bool),
-          watch = vx.optional(vx.bool),
-        }),
-        { transform = tx.extend }
-      ),
-    },
+    profiles = s:entry(
+      {
+        { name = 'blender', cmd = 'blender' },
+      },
+      vx.list.of(vx.table.of_all {
+        name = vx.string,
+        cmd = vx.any { vx.string, vx.list.of(vx.string) },
+        use_launcher = vx.optional(vx.bool),
+        extra_args = vx.optional(vx.list.of(vx.string)),
+        enable_dap = vx.optional(vx.bool),
+        watch = vx.optional(vx.bool),
+      }),
+      { transform = tx.extend }
+    ),
     dap = {
       enabled = s:entry(true, vx.bool),
     },

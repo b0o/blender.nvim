@@ -27,7 +27,7 @@ return function(on_select)
 
   ---@type List<{id: number, profile: Profile}>
   local options = vim
-    .iter(ipairs(config.blender.profiles))
+    .iter(ipairs(config.profiles))
     :map(function(i, profile)
       return { id = i, profile = Profile.create(profile) }
     end)
