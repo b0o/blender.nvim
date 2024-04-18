@@ -95,7 +95,7 @@ The `setup()` function can be called multiple times, and the configuration will 
 --- ~/projects/my-blender-addon/.nvim.lua
 local has_blender, blender = pcall(require, "blender")
 if has_blender then
-  blender.setup({
+  blender.setup {
     profiles = {
       {
         name = "my_addon",
@@ -104,7 +104,7 @@ if has_blender then
         extra_args = { vim.env.HOME .. "/blender-files/my-test-file.blend" },
       },
     },
-  })
+  }
 end
 ```
 
