@@ -89,9 +89,7 @@ require("blender").setup {
 }
 ```
 
-The `setup()` function can be called multiple times, and the configuration will be merged.
-
-This comes in handy for using `.nvim.lua` ([`:help exrc`](https://neovim.io/doc/user/options.html#'exrc')) files to configure Blender.nvim on a per-project basis. For example:
+The `setup()` function can be called multiple times, and the configuration will be merged. This comes in handy for using `.nvim.lua` ([`:help exrc`](https://neovim.io/doc/user/options.html#'exrc')) files to configure Blender.nvim on a per-project basis. For example:
 
 ```lua
 --- ~/projects/my-blender-addon/.nvim.lua
