@@ -44,6 +44,7 @@ Neovim Plugin Dependencies:
 - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim)
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
 - [nvim-dap (for DAP support, optional)](https://github.com/mfussenegger/nvim-dap)
+- [nvim-dap-repl-highlights (for syntax highlighting in the DAP REPL, optional)](https://github.com/LiadOz/nvim-dap-repl-highlights)
 
 Lazy.nvim:
 
@@ -108,11 +109,22 @@ require("blender").setup {
 ```lua
 local actions = require("blender.actions")
 
-actions.show_launcher() --     Show the Blender launcher
-actions.show_task_manager() -- Show the Blender task manager
-actions.reload() --            Reload the Blender add-on
-actions.watch() --             Watch for changes and reload the add-on
-actions.unwatch() --           Stop watching for changes
+---Launch a Blender profile
+actions.show_launcher()
+
+---Manage a running Blender task
+actions.show_task_manager()
+
+---Reload the Blender add-on
+actions.reload()
+
+---Start watching for changes in the addon files
+---Note: When the task exits, the watch is removed.
+---@param patterns? string|string[] # pattern(s) matching files to watch for changes
+actions.watch(patterns)
+
+---Stop watching for changes in the addon files
+actions.unwatch()
 ```
 
 ## License & Credits
