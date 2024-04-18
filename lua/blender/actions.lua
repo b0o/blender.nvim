@@ -4,6 +4,7 @@ local notify = require 'blender.notify'
 
 local M = {}
 
+---Launch a Blender profile
 M.show_launcher = function()
   local running_task = manager.get_running_task()
   if running_task then
@@ -22,6 +23,7 @@ M.show_launcher = function()
   end)
 end
 
+---Manage a running Blender task
 M.show_task_manager = function()
   if not manager.task then
     notify('No Blender task', 'ERROR')
@@ -56,6 +58,7 @@ M.watch = function(patterns)
   running_task:watch(patterns or running_task.profile:get_watch_patterns())
 end
 
+---Stop watching for changes in the addon files
 M.unwatch = function()
   local running_task = manager.get_running_task()
   if not running_task then

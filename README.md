@@ -19,7 +19,7 @@ command will refresh it without needing to restart Blender.
 
 - **Run your add-on directly from Neovim**
 - **Refresh your add-on with a single Neovim command**
-- **Reload your add-on automatically when a file changes** (TODO)
+- **Reload your add-on automatically when a file changes**
 - **Create profiles for different versions of Blender**
 - **Debug your add-on with DAP**
 - **Support for Python virtual environments**
@@ -61,6 +61,58 @@ use {
     "LiadOz/nvim-dap-repl-highlights", -- optional, for syntax highlighting in the DAP REPL
   },
 }
+```
+
+## Configuration
+
+Default configuration:
+
+```lua
+require("blender").setup {
+  profiles = { --               Profile[]?      list of blender profiles
+    --
+    {
+      name = 'blender', --      string           profile name, must be unique
+      cmd = 'blender', --       string|string[]  command to run Blender
+      -- use_launcher = true -- boolean?         whether to run the launch_blender.py script when starting Blender
+      -- extra_args = {} --     string[]?        extra arguments to pass to Blender
+      -- enable_dap = nil --    boolean?         whether to enable DAP for this profile (if nil, the global setting is used)
+      -- watch = nil --         boolean?         whether to watch the add-on directory for changes (if nil, the global setting is used)
+    },
+  },
+  dap = { --                     DapConfig?       DAP configuration
+    enabled = true, --           boolean?         whether to enable DAP (can be overridden per profile)
+  },
+  notify = { --                  NotifyConfig?    notification configuration
+    enabled = true, --           boolean?         whether to enable notifications
+    verbosity = 'INFO', --       'TRACE'|'DEBUG'|'INFO'|'WARN'|'ERROR'|'OFF'|vim.log.level?  log level for notifications
+  },
+  watch = { --                   WatchConfig?     file watcher configuration
+    enabled = true, --           boolean?         whether to watch the add-on directory for changes (can be overridden per profile)
+  },
+}
+```
+
+## Usage
+
+### Commands
+
+- `:BlenderLaunch` - Launch a Blender profile
+- `:BlenderManage` - Manage a running Blender task
+- `:BlenderReload` - Reload the Blender add-on
+- `:BlenderWatch` - Watch for changes and reload the add-on
+- `:BlenderUnwatch` - Stop watching for changes
+
+### Lua API
+
+```lua
+local actions = require("blender.actions")
+
+actions.show_launcher() --     Show the Blender launcher
+actions.show_task_manager() -- Show the Blender task manager
+actions.reload() --            Reload the Blender add-on
+actions.watch() --             Watch for changes and reload the add-on
+actions.unwatch() --           Stop watching for changes
 ```
 
 ## License & Credits
