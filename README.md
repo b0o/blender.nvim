@@ -1,10 +1,5 @@
 <h1 align="center">Blender.nvim</h1>
 
-<p align="center">
-  <a href="https://github.com/b0o/blender.nvim/releases"><img alt="Version Badge" src="https://img.shields.io/github/v/tag/b0o/blender.nvim?style=flat&color=yellow&label=version&sort=semver"/></a>
-  <a href="https://mit-license.org"><img alt="License: MIT" src="https://img.shields.io/github/license/b0o/blender.nvim?style=flat&color=green"/></a>
-</p>
-
 **Develop Blender add-ons with Neovim.**
 
 Blender.nvim streamlines the add-on development process by launching Blender
