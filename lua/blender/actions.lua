@@ -30,7 +30,8 @@ M.show_task_manager = function()
   ui.manage_task { task = manager.task }
 end
 
-M.reload_addon = function()
+---Reload the Blender add-on
+M.reload = function()
   local running_task = manager.get_running_task()
   if not running_task then
     notify('No running blender task', 'ERROR')
