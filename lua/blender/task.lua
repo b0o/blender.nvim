@@ -7,19 +7,23 @@ local notify = require 'blender.notify'
 
 local augroup = vim.api.nvim_create_augroup('blender.task', { clear = true })
 
----@alias TaskEvent 'change' | 'start' | 'start_fail' | 'client_attach' | 'dap_attach' | 'exit'
+---@alias TaskEventType 'change' | 'start' | 'start_fail' | 'client_attach' | 'dap_attach' | 'exit'
+
+---@class TaskEvent
+---@field type TaskEventType
+---@field id integer
+---@field prime boolean
+---@field task Task
 
 ---@alias TaskStatus 'waiting' | 'failed' | 'running' | 'exited'
 
----@alias TaskSignalValue SignalValue<Task>
-
----@class TaskSignals
----@field change TaskSignalValue
----@field start TaskSignalValue
----@field start_fail TaskSignalValue
----@field client_attach TaskSignalValue
----@field dap_attach TaskSignalValue
----@field exit TaskSignalValue
+---@class TaskSignal
+---@field change SignalValue<TaskEvent>
+---@field start SignalValue<TaskEvent>
+---@field start_fail SignalValue<TaskEvent>
+---@field client_attach SignalValue<TaskEvent>
+---@field dap_attach SignalValue<TaskEvent>
+---@field exit SignalValue<TaskEvent>
 
 ---@class TaskParams
 ---@field profile Profile
@@ -39,7 +43,8 @@ local augroup = vim.api.nvim_create_augroup('blender.task', { clear = true })
 ---@field debugger_attached boolean
 ---@field dap_repl_buf? integer
 ---@field watch_status? TaskWatchStatus
----@field private _signals TaskSignals
+---@field _next_event_id integer
+---@field private _signal TaskSignal
 ---@field private _job_id? integer
 ---@field private _bufnr? integer
 ---@field private _term_id? integer
@@ -68,13 +73,14 @@ function Task.create(params)
     dap_repl_buf = nil,
     watch = nil,
 
-    _signals = {
-      change = Signal.create { val = nil },
-      start = Signal.create { val = nil },
-      start_fail = Signal.create { val = nil },
-      client_attach = Signal.create { val = nil },
-      dap_attach = Signal.create { val = nil },
-      exit = Signal.create { val = nil },
+    _next_event_id = 1,
+    _signal = Signal.create {
+      change = nil,
+      start = nil,
+      start_fail = nil,
+      client_attach = nil,
+      dap_attach = nil,
+      exit = nil,
     },
     _job_id = nil,
     _bufnr = nil,
@@ -85,34 +91,49 @@ end
 ---@class TaskOnParams
 ---@field prime? boolean Whether to "prime" the signal; if true, will be immediately "primed" with nil as the first event
 
----@param event TaskEvent
+---@param event TaskEventType
 ---@param params? TaskOnParams
----@return SignalValue<Task>
+---@return SignalValue<TaskEvent>
 function Task:on(event, params)
   params = params or {}
   ---@type SignalValue<Task>
-  local signal_value = self._signals[event].val
-  return signal_value:filter(function(val)
-    if params.prime == true then
-      return true
-    end
-    return val == self
-  end)
+  local signal_value = self._signal[event]
+  return signal_value
+    :map(function(evt)
+      if evt == nil then
+        return {
+          type = event,
+          id = -1,
+          prime = true,
+          task = self,
+        }
+      end
+      return evt
+    end)
+    :filter(function(val)
+      return params.prime == true or not val.prime
+    end)
 end
 
----@param event TaskEvent
+---@param event TaskEventType
 ---@param fn fun(val: Task): nil
----@return SignalValue<Task>
+---@return SignalValue<TaskEvent>
 function Task:once(event, fn)
   return signal_utils.observe_once(self:on(event), fn)
 end
 
----@param event TaskEvent|(TaskEvent | nil | boolean)[]
+---@param event TaskEventType|(TaskEventType | nil | boolean)[]
 function Task:_dispatch(event)
   local events = type(event) == 'table' and event or { event }
   for _, evt in pairs(events) do
     if type(evt) == 'string' then
-      self._signals[evt].val = self
+      self._signal[evt] = {
+        type = evt,
+        id = self._next_event_id,
+        prime = false,
+        task = self,
+      }
+      self._next_event_id = self._next_event_id + 1
     end
   end
 end

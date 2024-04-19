@@ -92,17 +92,12 @@ local function ManageTask(props)
       },
       padding = { top = 0, right = 1, bottom = 0, left = 1 },
       truncate = true,
-      lines = props.task:on('change'):map(function(t)
-        if not t then
-          return {
-            n.line(n.text('No task selected', 'Comment')),
-          }
-        end
+      lines = props.task:on('change'):map(function(e)
         local debugger_text
-        if t.debugger_attached then
+        if e.task.debugger_attached then
           debugger_text = 'Attached'
-        elseif t.client then
-          if t.client.debugpy_enabled then
+        elseif e.task.client then
+          if e.task.client.debugpy_enabled then
             debugger_text = 'Not attached'
           elseif dap.is_available() then
             debugger_text = 'Disabled'
@@ -112,23 +107,26 @@ local function ManageTask(props)
         else
           debugger_text = 'N/a'
         end
-        local watch_status = t.watch_status
+        local watch_status = e.task.watch_status
             and table.concat(
               vim.tbl_map(function(p)
                 return vim.fn.fnamemodify(p, ':~:.')
-              end, t.watch_status.pattern),
+              end, e.task.watch_status.pattern),
               ', '
             )
           or 'N/a'
         return {
-          n.line(n.text('Id:       ', hl.BlenderAccent), tostring(t.id)),
-          n.line(n.text('Profile:  ', hl.BlenderAccent), t.profile.name),
-          n.line(n.text('Command:  ', hl.BlenderAccent), table.concat(t.cmd, ' ')),
+          n.line(n.text('Id:       ', hl.BlenderAccent), tostring(e.task.id)),
+          n.line(n.text('Profile:  ', hl.BlenderAccent), e.task.profile.name),
+          n.line(n.text('Command:  ', hl.BlenderAccent), table.concat(e.task.cmd, ' ')),
           n.line(
             n.text('Status:   ', hl.BlenderAccent),
-            t.status .. (t.exit_code and ' (code ' .. t.exit_code .. ')' or '')
+            e.task.status .. (e.task.exit_code and ' (code ' .. e.task.exit_code .. ')' or '')
           ),
-          n.line(n.text('PID:      ', hl.BlenderAccent), tostring(t.status == 'running' and t:get_pid() or 'N/a')),
+          n.line(
+            n.text('PID:      ', hl.BlenderAccent),
+            tostring(e.task.status == 'running' and e.task:get_pid() or 'N/a')
+          ),
           n.line(n.text('Debugger: ', hl.BlenderAccent), debugger_text),
           n.line(n.text('Watch:    ', hl.BlenderAccent), watch_status),
         }
@@ -174,11 +172,11 @@ local function ManageTask(props)
       n.tab(
         { id = 'tab-debug' },
         buffer {
-          buf = props.task:on('dap_attach', { prime = true }):map(function(t)
-            if t == nil or not t.debugger_attached then
+          buf = props.task:on('dap_attach', { prime = true }):map(function(e)
+            if e.prime or not e.task.debugger_attached then
               return dap.get_fallback_repl_buf()
             end
-            return t.dap_repl_buf
+            return e.task.dap_repl_buf
           end),
           autoscroll = true,
           border_style = 'rounded',
