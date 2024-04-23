@@ -30,16 +30,19 @@ https://github.com/b0o/blender.nvim/assets/21299126/cce964de-7cb6-4dfb-86d4-2cf2
 External Dependencies:
 
 - [Neovim](https://neovim.io) >= 0.9.5
-- [Blender](https://www.blender.org) >= 2.80
-- [Python](https://www.python.org) >= 3.7
+- [Blender](https://www.blender.org) >= 2.80.34
 
 Neovim Plugin Dependencies:
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
 - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim)
-- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
-- [nvim-dap (for DAP support, optional)](https://github.com/mfussenegger/nvim-dap)
-- [nvim-dap-repl-highlights (for syntax highlighting in the DAP REPL, optional)](https://github.com/LiadOz/nvim-dap-repl-highlights)
+- [nvim-dap (Optional, for DAP support)](https://github.com/mfussenegger/nvim-dap)
+- [nvim-dap-repl-highlights (Optional, for syntax highlighting in the DAP REPL)](https://github.com/LiadOz/nvim-dap-repl-highlights)
+
+Python Dependencies:
+
+- [pynvim](https://github.com/neovim/pynvim)
+- [debugpy (Optional, for DAP support)](https://github.com/microsoft/debugpy)
 
 Lazy.nvim:
 
@@ -52,7 +55,6 @@ use {
   dependencies = {
     "MunifTanjim/nui.nvim",
     "grapp-dev/nui-components.nvim",
-    'nvim-lua/plenary.nvim',
     "mfussenegger/nvim-dap", -- optional
     "LiadOz/nvim-dap-repl-highlights", -- optional, for syntax highlighting in the DAP REPL
   },
@@ -148,23 +150,17 @@ actions.unwatch()
 
 Includes code from the following projects:
 
-- [JacquesLucke/blender_vscode](https://github.com/JacquesLucke/blender_vscode)
-  - The Python portion of Blender.nvim is a modified version of the code from blender_vscode.
+- [JacquesLucke/blender_vscode](https://github.com/JacquesLucke/blender_vscode) (MIT License)
+  - The Python portion of Blender.nvim is a heavily modified version of the code from blender_vscode.
   - The Lua portion of Blender.nvim is inspired by the TypeScript implementation of blender_vscode, but is not a copy.
-  - License: MIT
-- [stevearc/overseer.nvim](https://github.com/stevearc/overseer.nvim)
+- [stevearc/overseer.nvim](https://github.com/stevearc/overseer.nvim) (MIT License)
   - The jobstart terminal strategy is based on code from overseer.nvim.
-  - License: MIT
-
-### Contributors
-
-- [b0o](https://github.com/b0o)
-- [willothy](https://github.com/willothy)
 
 ### Acknowledgements
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim): UI component library for Neovim
 - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim): UI framework built on top of nui.nvim
+- [willothy](https://github.com/willothy) for the original Buffer component implementation
 
 ### License
 
