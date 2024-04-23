@@ -97,7 +97,7 @@ local function ManageTask(props)
         if e.task.debugger_attached then
           debugger_text = 'Attached'
         elseif e.task.client then
-          if e.task.client.debugpy_enabled then
+          if e.task.profile:dap_enabled() then
             debugger_text = 'Not attached'
           elseif dap.is_available() then
             debugger_text = 'Disabled'

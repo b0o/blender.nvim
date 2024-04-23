@@ -151,26 +151,27 @@ function Profile:get_watch_patterns()
   return { addon_dir .. '/*' }
 end
 
+function Profile:dap_enabled()
+  if not dap.is_available() then
+    return false
+  end
+  if self.enable_dap ~= nil then
+    return self.enable_dap
+  end
+  return config.dap.enabled
+end
+
 function Profile:launch()
   local launch_cmd = self:get_full_cmd()
   if not launch_cmd then
     return
   end
-  local paths = self:get_paths()
-  local enable_dap
-  if not dap.is_available() then
-    enable_dap = false
-  elseif self.enable_dap ~= nil then
-    enable_dap = self.enable_dap
-  else
-    enable_dap = config.dap.enabled
-  end
   local task = Task.create {
     cmd = launch_cmd,
     cwd = vim.fn.getcwd(),
     env = vim.tbl_extend('force', vim.fn.environ(), {
-      BLENDER_NVIM_ENABLE_DAP = enable_dap and 'yes' or 'no',
-      BLENDER_NVIM_ADDONS_TO_LOAD = vim.json.encode(paths.path_mappings),
+      BLENDER_NVIM_ENABLE_DAP = self:dap_enabled() and 'yes' or 'no',
+      BLENDER_NVIM_ADDONS_TO_LOAD = vim.json.encode(self:get_paths().path_mappings),
       BLENDER_NVIM_RPC_SOCKET = rpc.get_server():get_socket(),
     }),
     profile = self,
