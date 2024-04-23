@@ -17,7 +17,7 @@ local notify = require 'blender.notify'
 ---@field cmd List<string>
 local Profile = {}
 
-local launcher = 'launch_blender.py'
+local launcher = 'launcher.py'
 
 local get_launcher_path = function()
   local launcher_path = vim.api.nvim_get_runtime_file(launcher, false)

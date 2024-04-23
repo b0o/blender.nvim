@@ -72,7 +72,7 @@ require("blender").setup {
     {
       name = 'blender', --      string           profile name, must be unique
       cmd = 'blender', --       string|string[]  command to run Blender
-      -- use_launcher = true -- boolean?         whether to run the launch_blender.py script when starting Blender
+      -- use_launcher = true -- boolean?         whether to run the launcher.py script when starting Blender
       -- extra_args = {} --     string[]?        extra arguments to pass to Blender
       -- enable_dap = nil --    boolean?         whether to enable DAP for this profile (if nil, the global setting is used)
       -- watch = nil --         boolean?         whether to watch the add-on directory for changes (if nil, the global setting is used)
