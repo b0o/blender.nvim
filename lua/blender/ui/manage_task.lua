@@ -1,6 +1,5 @@
 local n = require 'nui-components'
 
-local buffer = require 'blender.components.buffer'
 local dap = require 'blender.dap'
 local signal_utils = require 'blender.signal.utils'
 local hl = require('blender.highlights').groups
@@ -157,7 +156,7 @@ local function ManageTask(props)
       ),
       n.tab(
         { id = 'tab-output' },
-        buffer {
+        n.buffer {
           buf = props.task:get_buf(),
           autoscroll = true,
           border_style = 'rounded',
@@ -171,7 +170,7 @@ local function ManageTask(props)
       ),
       n.tab(
         { id = 'tab-debug' },
-        buffer {
+        n.buffer {
           buf = props.task:on('dap_attach', { prime = true }):map(function(e)
             if e.prime or not e.task.debugger_attached then
               return dap.get_fallback_repl_buf()
@@ -179,6 +178,7 @@ local function ManageTask(props)
             return e.task.dap_repl_buf
           end),
           autoscroll = true,
+          filetype = 'dap-repl',
           border_style = 'rounded',
           border_label = {
             text = n.text('Debugger', hl.BlenderAccent),
