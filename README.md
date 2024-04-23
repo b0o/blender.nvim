@@ -26,14 +26,14 @@ Blender.nvim requires a recent version of Neovim and Blender. The following vers
 - [Neovim](https://neovim.io) >= 0.9.5
 - [Blender](https://www.blender.org) >= 2.80.34
 
-Neovim Plugin Dependencies:
+#### Neovim Plugin Dependencies:
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
 - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim)
 - [nvim-dap](https://github.com/mfussenegger/nvim-dap) (Optional, for debugging with DAP)
 - [nvim-dap-repl-highlights](https://github.com/LiadOz/nvim-dap-repl-highlights) (Optional, for syntax highlighting in the DAP REPL)
 
-Python Dependencies:
+#### Python Dependencies:
 
 It's recommended to use a Python virtual environment for Blender.nvim. Install the following packages in your virtual environment:
 
