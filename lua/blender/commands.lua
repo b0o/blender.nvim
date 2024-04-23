@@ -21,6 +21,7 @@ local cmd = function(name, fn, desc, opts)
 end
 
 M.setup = function()
+  cmd('Blender', action 'show_ui', 'Open the Blender.nvim UI')
   cmd('BlenderLaunch', action 'show_launcher', 'Launch a Blender profile')
   cmd('BlenderManage', action 'show_task_manager', 'Manage a running Blender task')
   cmd('BlenderReload', action 'reload', 'Reload the Blender addon')

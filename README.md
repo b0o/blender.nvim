@@ -114,6 +114,7 @@ For this to work, you need to ensure you have `:set exrc` in your Neovim configu
 
 ### Commands
 
+- `:Blender` - Open the Blender.nvim UI
 - `:BlenderLaunch` - Launch a Blender profile
 - `:BlenderManage` - Manage a running Blender task
 - `:BlenderReload` - Reload the Blender add-on

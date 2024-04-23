@@ -4,6 +4,16 @@ local notify = require 'blender.notify'
 
 local M = {}
 
+---Open the Blender.nvim UI
+M.show_ui = function()
+  local running_task = manager.get_running_task()
+  if running_task then
+    M.show_task_manager()
+    return
+  end
+  M.show_launcher()
+end
+
 ---Launch a Blender profile
 M.show_launcher = function()
   local running_task = manager.get_running_task()
