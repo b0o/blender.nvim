@@ -246,29 +246,35 @@ end
 ---@param client RpcClient
 function Task:attach_client(client)
   self.client = client
-  local dap_attached
-  if client.debugpy_enabled then
-    dap_attached = require('blender.dap').attach {
-      host = '127.0.0.1', -- TODO: Make dynamic
-      port = client.debugpy_port,
-      python_exe = client.python_exe,
-      cwd = client.scripts_folder,
-      path_mappings = client.path_mappings,
-    }
-    if dap_attached then
-      -- for some reason, we need to defer this in order for the injected syntax highlighting
-      -- to work, and using vim.schedule() doesn't work
-      vim.defer_fn(function()
-        local repl_buf = dap.get_repl_buf()
-        if repl_buf and vim.api.nvim_buf_is_valid(repl_buf) then
-          self.debugger_attached = true
-          self.dap_repl_buf = repl_buf
-          self:_dispatch { 'change', 'dap_attach' }
-        end
-      end, 0)
-    end
-  end
   self:_dispatch { 'change', 'client_attach' }
+end
+
+---@param params { host: string, port: number }
+function Task:attach_debugger(params)
+  if not self.client then
+    notify("Can't attach debugger: No RPC client attached to the task", 'ERROR')
+    return
+  end
+  local dap_attached = require('blender.dap').attach {
+    host = params.host,
+    port = params.port,
+    python_exe = self.client.python_exe,
+    cwd = self.client.scripts_folder,
+    path_mappings = self.client.path_mappings,
+  }
+  if dap_attached then
+    notify('Debugger attached', 'TRACE')
+    -- for some reason, we need to defer this in order for the injected syntax highlighting
+    -- to work, and using vim.schedule() doesn't work
+    vim.defer_fn(function()
+      local repl_buf = dap.get_repl_buf()
+      if repl_buf and vim.api.nvim_buf_is_valid(repl_buf) then
+        self.debugger_attached = true
+        self.dap_repl_buf = repl_buf
+        self:_dispatch { 'change', 'dap_attach' }
+      end
+    end, 0)
+  end
 end
 
 --TODO: Detect client/debugger detach

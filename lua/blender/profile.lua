@@ -169,10 +169,9 @@ function Profile:launch()
     cmd = launch_cmd,
     cwd = vim.fn.getcwd(),
     env = vim.tbl_extend('force', vim.fn.environ(), {
-      ENABLE_DEBUGPY = enable_dap and 'yes' or 'no',
-      ADDONS_TO_LOAD = vim.json.encode(paths.path_mappings),
-      EDITOR_ADDR = rpc.get_server():get_addr(),
-      ALLOW_MODIFY_EXTERNAL_PYTHON = 'no',
+      BLENDER_NVIM_ENABLE_DAP = enable_dap and 'yes' or 'no',
+      BLENDER_NVIM_ADDONS_TO_LOAD = vim.json.encode(paths.path_mappings),
+      BLENDER_NVIM_RPC_SOCKET = rpc.get_server():get_socket(),
     }),
     profile = self,
   }

@@ -1,7 +1,17 @@
-import queue
-import traceback
+import sys
+from typing import List
 
 import bpy
+
+
+def fatal(message):
+    print()
+    print("#" * 80)
+    for line in message.splitlines():
+        print(">  ", line)
+    print("#" * 80)
+    print()
+    sys.exit(1)
 
 
 def redraw_all():
@@ -10,25 +20,19 @@ def redraw_all():
             area.tag_redraw()
 
 
-def get_prefixes(all_names, separator):
-    return set(name.split(separator)[0] for name in all_names if separator in name)
+def in_blender():
+    return type(bpy.app.version) is tuple
 
 
-execution_queue = queue.Queue()
+def ensure_installed(pkg_names: List[str | None]):
+    missing_pkgs = [pkg for pkg in pkg_names if pkg and not is_importable(pkg)]
+    if missing_pkgs:
+        return fatal(f"Missing required packages: {', '.join(missing_pkgs)}")
 
 
-def run_in_main_thread(func):
-    execution_queue.put(func)
-
-
-def always():
-    while not execution_queue.empty():
-        func = execution_queue.get()
-        try:
-            func()
-        except:  # noqa: E722
-            traceback.print_exc()
-    return 0.1
-
-
-bpy.app.timers.register(always, persistent=True)
+def is_importable(name):
+    try:
+        __import__(name)
+        return True
+    except ModuleNotFoundError:
+        return False

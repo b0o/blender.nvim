@@ -1,17 +1,10 @@
-local curl = require 'plenary.curl'
-
--- TODO: This should be a part of RpcClientParams
-local proto = 'http'
-local host = 'localhost'
-
 ---@class RpcClientParams
----@field blender_port integer
----@field debugpy_enabled boolean
----@field debugpy_port integer
 ---@field python_exe string
 ---@field blender_path string
+---@field blender_version string
 ---@field scripts_folder string
 ---@field path_mappings List<unknown>
+---@field channel_id number
 
 ---@class RpcClient : RpcClientParams
 local RpcClient = {}
@@ -20,41 +13,37 @@ local RpcClient = {}
 ---@return RpcClient
 function RpcClient.create(params)
   local self = setmetatable({
-    blender_port = params.blender_port,
-    debugpy_enabled = params.debugpy_enabled,
-    debugpy_port = params.debugpy_port,
     python_exe = params.python_exe,
     blender_path = params.blender_path,
+    blender_version = params.blender_version,
     scripts_folder = params.scripts_folder,
     path_mappings = params.path_mappings,
+    channel_id = params.channel_id,
   }, { __index = RpcClient })
   return self
 end
 
-function RpcClient:_base_url()
-  return string.format('%s://%s:%d', proto, host, self.blender_port)
+---@param name string
+---@param ... any
+function RpcClient:request(name, ...)
+  vim.fn.rpcrequest(self.channel_id, name, ...)
 end
 
----@param data any
-function RpcClient:post(data)
-  return curl.post(self:_base_url(), {
-    body = vim.fn.json_encode(data),
-    headers = {
-      content_type = 'application/json',
-    },
-  })
+---@param name string
+---@param ... any
+function RpcClient:notify(name, ...)
+  vim.fn.rpcnotify(self.channel_id, name, ...)
 end
 
 function RpcClient:reload_addon()
-  return self:post {
-    type = 'reload',
+  return self:notify('reload', {
     names = vim
       .iter(self.path_mappings)
       :map(function(mapping)
         return vim.fn.fnamemodify(mapping.load, ':t')
       end)
       :totable(),
-  }
+  })
 end
 
 return RpcClient

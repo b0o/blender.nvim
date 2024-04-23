@@ -2,24 +2,25 @@ import sys
 import traceback
 
 import bpy
-from bpy.props import *
 
-from ..communication import register_post_action, send_rpc_msg
-from ..utils import redraw_all
+from ..rpc import NvimRpc
+from ..utils import in_blender, redraw_all
 
 
 class UpdateAddonOperator(bpy.types.Operator):
     bl_idname = "dev.update_addon"
     bl_label = "Update Addon"
 
-    module_name: StringProperty()
+    module_name: bpy.props.StringProperty()  # type: ignore
+    if not in_blender():
+        module_name: str
 
     def execute(self, context):
         try:
             bpy.ops.preferences.addon_disable(module=self.module_name)
-        except:
+        except Exception as e:
             traceback.print_exc()
-            send_rpc_msg({"type": "disableFailure"})
+            NvimRpc.get_instance().send({"type": "disable_failure", "message": str(e)})
             return {"CANCELLED"}
 
         for name in list(sys.modules.keys()):
@@ -28,22 +29,23 @@ class UpdateAddonOperator(bpy.types.Operator):
 
         try:
             bpy.ops.preferences.addon_enable(module=self.module_name)
-        except:
+        except Exception as e:
             traceback.print_exc()
-            send_rpc_msg({"type": "enableFailure"})
+            NvimRpc.get_instance().send({"type": "enable_failure", "message": str(e)})
             return {"CANCELLED"}
 
-        send_rpc_msg({"type": "addonUpdated"})
+        NvimRpc.get_instance().send({"type": "addon_updated"})
 
         redraw_all()
         return {"FINISHED"}
 
 
+@NvimRpc.notification_handler("reload")
 def reload_addon_action(data):
+    print("reload_addon_action", data)
     for name in data["names"]:
         bpy.ops.dev.update_addon(module_name=name)
 
 
 def register():
     bpy.utils.register_class(UpdateAddonOperator)
-    register_post_action("reload", reload_addon_action)

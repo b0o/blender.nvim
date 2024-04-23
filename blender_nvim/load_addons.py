@@ -4,8 +4,8 @@ import traceback
 
 import bpy
 
-from .communication import send_rpc_msg
 from .environment import addon_directories, user_addon_directory
+from .rpc import NvimRpc
 
 
 def setup_addon_links(addons_to_load):
@@ -29,13 +29,15 @@ def setup_addon_links(addons_to_load):
     return path_mappings
 
 
-def load(addons_to_load):
+def load_addons(addons_to_load):
     for source_path, module_name in addons_to_load:
         try:
             bpy.ops.preferences.addon_enable(module=module_name)
         except:  # noqa: E722
             traceback.print_exc()
-            send_rpc_msg({"type": "enableFailure", "addonPath": str(source_path)})
+            NvimRpc.get_instance().send(
+                {"type": "enable_failure", "message": traceback.format_exc()}
+            )
 
 
 def create_link_in_user_addon_directory(directory, link_path):
