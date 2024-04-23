@@ -4,9 +4,10 @@ from .rpc import NvimRpc
 
 
 class NvimDap:
-    _instance: Optional["NvimDap"] = None
+    """DAP Interface for Neovim <-> Debugpy communication (singleton)"""
 
-    # --- Class Methods --- #
+    # --- Class --- #
+    _instance: Optional["NvimDap"] = None
 
     @classmethod
     def initialize(cls, rpc: NvimRpc):
@@ -25,7 +26,7 @@ class NvimDap:
     def get_instance_safe(cls):
         return cls._instance
 
-    # --- Instance Methods --- #
+    # --- Instance --- #
     rpc: NvimRpc
     started: bool = False
     host: Optional[str]

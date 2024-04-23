@@ -8,12 +8,12 @@ import pynvim
 
 
 class NvimRpc:
-    _instance: Optional["NvimRpc"] = None
+    """RPC Interface for Blender <-> Neovim communication (singleton)"""
 
+    # --- Class --- #
+    _instance: Optional["NvimRpc"] = None
     _request_handlers: Dict[str, Callable[["NvimRpc", List[Any]], None]] = {}
     _notification_handlers: Dict[str, Callable[["NvimRpc", List[Any]], None]] = {}
-
-    # --- Class Methods --- #
 
     @classmethod
     def initialize(
@@ -69,8 +69,7 @@ class NvimRpc:
 
         return decorator
 
-    # --- Instance Methods --- #
-
+    # --- Instance --- #
     _sock: str
     nvim: pynvim.Nvim
     _main_thread: threading.Thread
