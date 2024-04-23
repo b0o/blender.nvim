@@ -1,23 +1,17 @@
-<h1 align="center">Blender.nvim</h1>
+<h1 align="center">🔶 Blender.nvim</h1>
 
 **Develop Blender add-ons with Neovim.**
-
-Blender.nvim streamlines the add-on development process by launching Blender
-directly from Neovim and automatically installing your add-on. Then, after
-you've made some changes to your code and want to reload your add-on, a single
-command will refresh it without needing to restart Blender.
 
 > [!NOTE]
 > Blender.nvim is experimental and under active development.
 
 ## Features
 
-- **Run your add-on directly from Neovim**
-- **Refresh your add-on with a single Neovim command**
-- **Reload your add-on automatically when a file changes**
-- **Create profiles for different versions of Blender**
-- **Debug your add-on with DAP**
-- **Support for Python virtual environments**
+- **Run** your add-on in Blender directly from Neovim
+- **Refresh** your add-on with a single Neovim command
+- **Watch** your add-on directory for changes and automatically reload
+- **Project-specific** configuration with profiles and `.nvim.lua` files
+- **Debug** your add-on with [DAP](https://microsoft.github.io/debug-adapter-protocol/)
 
 https://github.com/b0o/blender.nvim/assets/21299126/961f4bb9-4924-4bee-8540-d8392036c482
 
@@ -27,7 +21,7 @@ https://github.com/b0o/blender.nvim/assets/21299126/cce964de-7cb6-4dfb-86d4-2cf2
 
 ### Prerequisites
 
-External Dependencies:
+Blender.nvim requires a recent version of Neovim and Blender. The following versions are known to work:
 
 - [Neovim](https://neovim.io) >= 0.9.5
 - [Blender](https://www.blender.org) >= 2.80.34
@@ -36,15 +30,21 @@ Neovim Plugin Dependencies:
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
 - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim)
-- [nvim-dap (Optional, for DAP support)](https://github.com/mfussenegger/nvim-dap)
-- [nvim-dap-repl-highlights (Optional, for syntax highlighting in the DAP REPL)](https://github.com/LiadOz/nvim-dap-repl-highlights)
+- [nvim-dap](https://github.com/mfussenegger/nvim-dap) (Optional, for debugging with DAP)
+- [nvim-dap-repl-highlights](https://github.com/LiadOz/nvim-dap-repl-highlights) (Optional, for syntax highlighting in the DAP REPL)
 
 Python Dependencies:
 
-- [pynvim](https://github.com/neovim/pynvim)
-- [debugpy (Optional, for DAP support)](https://github.com/microsoft/debugpy)
+It's recommended to use a Python virtual environment for Blender.nvim. Install the following packages in your virtual environment:
 
-Lazy.nvim:
+- [pynvim](https://github.com/neovim/pynvim)
+- [debugpy](https://github.com/microsoft/debugpy) (Optional, for DAP support)
+
+Activate your virtual environment and launch Neovim from within it to ensure the Python dependencies are available.
+
+For an example starter project, see [blender-addon-template](https://github.com/b0o/blender-addon-template).
+
+### Lazy.nvim
 
 ```lua
 use {
@@ -55,8 +55,8 @@ use {
   dependencies = {
     "MunifTanjim/nui.nvim",
     "grapp-dev/nui-components.nvim",
-    "mfussenegger/nvim-dap", -- optional
-    "LiadOz/nvim-dap-repl-highlights", -- optional, for syntax highlighting in the DAP REPL
+    "mfussenegger/nvim-dap", -- Optional, for debugging with DAP
+    "LiadOz/nvim-dap-repl-highlights", -- Optional, for syntax highlighting in the DAP REPL
   },
 }
 ```
@@ -91,7 +91,14 @@ require("blender").setup {
 }
 ```
 
-The `setup()` function can be called multiple times, and the configuration will be merged. This comes in handy for using `.nvim.lua` ([`:help exrc`](https://neovim.io/doc/user/options.html#'exrc')) files to configure Blender.nvim on a per-project basis. For example:
+### Per-Project Configuration
+
+You can use `.nvim.lua` ([`:help exrc`](https://neovim.io/doc/user/options.html#'exrc')) files to configure Blender.nvim on a per-project basis.
+
+To enable support for `.nvim.lua` files in Neovim, you need to have `:set exrc` or `vim.o.exrc = true` in your Neovim configuration. Then, restart Neovim and, when prompted, allow the `.nvim.lua` file to be loaded.
+
+Blender.nvim's `setup()` function can be called multiple times. Each call will merge the new configuration with the existing configuration.
+For example, to add a profile for a Blender add-on in a specific project, you can create a `.nvim.lua` file in the project directory:
 
 ```lua
 --- ~/projects/my-blender-addon/.nvim.lua
@@ -110,7 +117,6 @@ if has_blender then
 end
 ```
 
-For this to work, you need to ensure you have `:set exrc` in your Neovim configuration. Then, restart Neovim and, when prompted, allow the `.nvim.lua` file to be loaded.
 
 ## Usage
 
