@@ -76,6 +76,7 @@ class NvimRpc:
     _session_thread: Optional[threading.Thread]
     _execution_queue: queue.Queue
     _on_setup_cb: Optional[Callable[["NvimRpc"], None]]
+    _executor_started: bool
 
     def __init__(
         self, sock: str, on_setup: Optional[Callable[["NvimRpc"], None]] = None
@@ -88,6 +89,7 @@ class NvimRpc:
         self._session_thread = None
         self._execution_queue = queue.Queue()
         self._on_setup_cb = on_setup
+        self._executor_started = False
 
     def schedule(self, func: Callable[[], None]):
         self._execution_queue.put(func)
@@ -112,9 +114,10 @@ class NvimRpc:
             self._on_setup_cb(self)
 
     def _start_session(self):
+        if self._session_thread is not None:
+            raise ValueError("Session is already started")
+
         def run():
-            if self._session_thread is None:
-                return
             self.nvim._session.run(
                 request_cb=self._on_request,
                 notification_cb=self._on_notification,
@@ -126,6 +129,9 @@ class NvimRpc:
         self._session_thread.start()
 
     def _start_executor(self):
+        if self._executor_started:
+            raise ValueError("Executor is already started")
+
         def executor():
             while not self._execution_queue.empty():
                 func = self._execution_queue.get()
@@ -136,6 +142,7 @@ class NvimRpc:
             return 0.1
 
         bpy.app.timers.register(executor, persistent=True)
+        self._executor_started = True
 
     def start(self):
         self._start_executor()
