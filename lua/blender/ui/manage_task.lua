@@ -11,18 +11,19 @@ local instance
 ---@field task Task
 ---@field message? string
 
+---@type {active_tab: SignalValue<'tab-output' | 'tab-debug'>}
+local tab_signal = n.create_signal {
+  active_tab = 'tab-output',
+}
+
+local is_tab_active = n.is_active_factory(tab_signal.active_tab)
+
 ---@param props ManageTaskProps
 local function ManageTask(props)
   if instance then
     instance:close()
     instance = nil
   end
-
-  ---@type {active_tab: SignalValue<'tab-output' | 'tab-debug'>}
-  local signal = n.create_signal {
-    active_tab = 'tab-output',
-  }
-  local is_tab_active = n.is_active_factory(signal.active_tab)
 
   local renderer = n.create_renderer {
     width = math.min(vim.o.columns, 100),
@@ -133,15 +134,20 @@ local function ManageTask(props)
     },
 
     n.tabs(
-      { active_tab = signal.active_tab },
+      { active_tab = tab_signal.active_tab },
       n.columns(
         { flex = 0 },
+        n.gap { flex = 1 },
         n.button {
           label = '  Output <M-1> ',
           global_press_key = '<M-1>',
           is_active = is_tab_active 'tab-output',
+          is_focusable = false,
           on_press = function()
-            signal.active_tab = signal_utils.signal_value 'tab-output'
+            tab_signal.active_tab = signal_utils.signal_value 'tab-output'
+          end,
+          on_focus = function()
+            tab_signal.active_tab = signal_utils.signal_value 'tab-output'
           end,
         },
         n.gap(1),
@@ -149,10 +155,15 @@ local function ManageTask(props)
           label = '  Debug Console <M-2> ',
           global_press_key = '<M-2>',
           is_active = is_tab_active 'tab-debug',
+          is_focusable = false,
           on_press = function()
-            signal.active_tab = signal_utils.signal_value 'tab-debug'
+            tab_signal.active_tab = signal_utils.signal_value 'tab-debug'
           end,
-        }
+          on_focus = function()
+            tab_signal.active_tab = signal_utils.signal_value 'tab-debug'
+          end,
+        },
+        n.gap { flex = 1 }
       ),
       n.tab(
         { id = 'tab-output' },
@@ -160,11 +171,6 @@ local function ManageTask(props)
           buf = props.task:get_buf(),
           autoscroll = true,
           border_style = 'rounded',
-          border_label = {
-            text = n.text('Output', hl.BlenderAccent),
-            icon = '',
-            align = 'center',
-          },
           size = 16,
         }
       ),
@@ -180,11 +186,6 @@ local function ManageTask(props)
           autoscroll = true,
           filetype = 'dap-repl',
           border_style = 'rounded',
-          border_label = {
-            text = n.text('Debugger', hl.BlenderAccent),
-            icon = '',
-            align = 'center',
-          },
           size = 16,
         }
       )
