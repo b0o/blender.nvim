@@ -5,6 +5,12 @@ from typing import Any, Callable, Dict, List, Literal, Optional
 
 import bpy
 import pynvim
+from pynvim.msgpack_rpc.event_loop import base as pynvim_event_loop_base
+
+# override default interrupt handler to avoid error when running in Blender
+# in background mode
+# SEE: https://github.com/neovim/pynvim/issues/264
+pynvim_event_loop_base.default_int_handler = lambda _: None
 
 
 class NvimRpc:
