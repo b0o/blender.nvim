@@ -177,11 +177,11 @@ local function ManageTask(props)
       n.tab(
         { id = 'tab-debug' },
         n.buffer {
-          buf = props.task:on('dap_attach', { prime = true }):map(function(e)
-            if e.prime or not e.task.debugger_attached then
+          buf = props.task:on('dap_repl_buf_set', { prime = true }):map(function(e)
+            if e.prime then
               return dap.get_fallback_repl_buf()
             end
-            return e.task.dap_repl_buf
+            return e.task:get_dap_repl_buf()
           end),
           autoscroll = true,
           filetype = 'dap-repl',

@@ -7,7 +7,7 @@ local notify = require 'blender.notify'
 
 local augroup = vim.api.nvim_create_augroup('blender.task', { clear = true })
 
----@alias TaskEventType 'change' | 'start' | 'start_fail' | 'client_attach' | 'dap_attach' | 'exit'
+---@alias TaskEventType 'change' | 'start' | 'start_fail' | 'client_attach' | 'dap_attach' | 'dap_repl_buf_set' | 'exit'
 
 ---@class TaskEvent
 ---@field type TaskEventType
@@ -23,6 +23,7 @@ local augroup = vim.api.nvim_create_augroup('blender.task', { clear = true })
 ---@field start_fail SignalValue<TaskEvent>
 ---@field client_attach SignalValue<TaskEvent>
 ---@field dap_attach SignalValue<TaskEvent>
+---@field dap_repl_buf_set SignalValue<TaskEvent>
 ---@field exit SignalValue<TaskEvent>
 
 ---@class TaskParams
@@ -266,15 +267,29 @@ function Task:attach_debugger(params)
     notify('Debugger attached', 'TRACE')
     -- for some reason, we need to defer this in order for the injected syntax highlighting
     -- to work, and using vim.schedule() doesn't work
-    vim.defer_fn(function()
-      local repl_buf = dap.get_repl_buf()
-      if repl_buf and vim.api.nvim_buf_is_valid(repl_buf) then
-        self.debugger_attached = true
-        self.dap_repl_buf = repl_buf
-        self:_dispatch { 'change', 'dap_attach' }
-      end
-    end, 0)
+    self:_dispatch { 'change', 'dap_attach' }
+    self.debugger_attached = true
+    self:get_dap_repl_buf()
   end
+end
+
+--BUG: If the dap repl buffer is deleted, re-creating it doesn't work as expected
+function Task:get_dap_repl_buf()
+  if not self.debugger_attached then
+    return dap.get_fallback_repl_buf()
+  end
+  if self.dap_repl_buf and vim.api.nvim_buf_is_valid(self.dap_repl_buf) then
+    return self.dap_repl_buf
+  end
+  vim.defer_fn(function()
+    local repl_buf = dap.get_repl_buf()
+    if not repl_buf or not vim.api.nvim_buf_is_valid(repl_buf) then
+      return dap.get_fallback_repl_buf()
+    end
+    self.dap_repl_buf = repl_buf
+    self:_dispatch { 'change', 'dap_repl_buf_set' }
+  end, 0)
+  return dap.get_fallback_repl_buf()
 end
 
 --TODO: Detect client/debugger detach
