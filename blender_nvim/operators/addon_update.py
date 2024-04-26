@@ -44,8 +44,12 @@ class UpdateAddonOperator(bpy.types.Operator):
 def reload_addon_action(data):
     print("reload_addon_action", data)
     for name in data["names"]:
-        bpy.ops.dev.update_addon(module_name=name)
+        call_operator(NVIM_OT_UpdateAddon, module_name=name)
+
+
+classes = (NVIM_OT_UpdateAddon,)
 
 
 def register():
-    bpy.utils.register_class(UpdateAddonOperator)
+    for cls in classes:
+        bpy.utils.register_class(cls)

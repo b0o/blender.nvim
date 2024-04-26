@@ -76,5 +76,9 @@ def run_script_action(data):
         bpy.ops.dev.run_script(filepath=path)
 
 
+classes = (NVIM_OT_RunScript,)
+
+
 def register():
-    bpy.utils.register_class(RunScriptOperator)
+    for cls in classes:
+        bpy.utils.register_class(cls)
