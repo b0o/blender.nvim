@@ -12,8 +12,9 @@ class RunScriptOperator(bpy.types.Operator):
     bl_idname = "dev.run_script"
     bl_label = "Run Script"
 
-    filepath: bpy.props.StringProperty()  # type: ignore
-    if not in_blender():
+    if in_blender():
+        filepath: bpy.props.StringProperty()  # type: ignore
+    else:
         filepath: str
 
     def execute(self, context):

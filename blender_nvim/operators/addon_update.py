@@ -11,8 +11,9 @@ class UpdateAddonOperator(bpy.types.Operator):
     bl_idname = "dev.update_addon"
     bl_label = "Update Addon"
 
-    module_name: bpy.props.StringProperty()  # type: ignore
-    if not in_blender():
+    if in_blender():
+        module_name: bpy.props.StringProperty()  # type: ignore
+    else:
         module_name: str
 
     def execute(self, context):
