@@ -154,10 +154,11 @@ class NvimRpc:
         self._start_executor()
         self._start_session()
 
-    def send(self, data):
+    def send(self, data: Any, async_: bool = True):
         if threading.current_thread() != self._session_thread:
             self.nvim._session.threadsafe_call(lambda: self.send(data))
             return
         print("RPC send:", data)
-        self.nvim.exec_lua('require("blender.rpc").handle(...)', data)
-        # TODO: Handle errors
+        return self.nvim.exec_lua(
+            'return require("blender.rpc").handle(...)', data, async_=async_
+        )
