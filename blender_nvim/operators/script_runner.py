@@ -5,11 +5,11 @@ import bpy
 
 from ..environment import version
 from ..rpc import NvimRpc
-from ..utils import in_blender, redraw_all
+from ..utils import call_operator, in_blender, redraw_all
 
 
-class RunScriptOperator(bpy.types.Operator):
-    bl_idname = "dev.run_script"
+class NVIM_OT_RunScript(bpy.types.Operator):
+    bl_idname = "nvim.run_script"
     bl_label = "Run Script"
 
     if in_blender():
@@ -70,11 +70,11 @@ def run_script_action(data):
     context = prepare_script_context(path)
 
     if version < (4, 0, 0):
-        bpy.ops.dev.run_script(context, filepath=path)
+        call_operator(NVIM_OT_RunScript, filepath=path)
         return
 
     with bpy.context.temp_override(**context):
-        bpy.ops.dev.run_script(filepath=path)
+        call_operator(NVIM_OT_RunScript, filepath=path)
 
 
 classes = (NVIM_OT_RunScript,)

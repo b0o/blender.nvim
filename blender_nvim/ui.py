@@ -5,7 +5,7 @@ from .rpc import NvimRpc
 
 
 class PT_NVIM_Info(bpy.types.Panel):
-    bl_idname = "DEV_PT_panel"
+    bl_idname = "DEV_PT_nvim_info"
     bl_label = "Blender.nvim"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"

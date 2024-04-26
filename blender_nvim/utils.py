@@ -1,5 +1,5 @@
 import sys
-from typing import List
+from typing import Type, TypeVar, List
 
 import bpy
 
@@ -36,3 +36,18 @@ def is_importable(name):
         return True
     except ModuleNotFoundError:
         return False
+
+
+TOperator = TypeVar("TOperator", bound=bpy.types.Operator)
+
+
+def call_operator(operator: Type[TOperator], *args, **kwargs):
+    idname = operator.bl_idname.split(".")
+    op = bpy.ops
+    for name in idname:
+        if not hasattr(op, name):
+            raise ValueError(f"Operator not found: {operator.bl_idname}")
+        op = getattr(op, name)
+    if not callable(op):
+        raise ValueError(f"Operator not found: {operator.bl_idname}")
+    return op(*args, **kwargs)

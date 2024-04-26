@@ -4,11 +4,11 @@ import traceback
 import bpy
 
 from ..rpc import NvimRpc
-from ..utils import in_blender, redraw_all
+from ..utils import call_operator, in_blender, redraw_all
 
 
-class UpdateAddonOperator(bpy.types.Operator):
-    bl_idname = "dev.update_addon"
+class NVIM_OT_UpdateAddon(bpy.types.Operator):
+    bl_idname = "nvim.update_addon"
     bl_label = "Update Addon"
 
     if in_blender():
