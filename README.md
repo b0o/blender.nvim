@@ -23,8 +23,8 @@ https://github.com/b0o/blender.nvim/assets/21299126/cce964de-7cb6-4dfb-86d4-2cf2
 
 Blender.nvim requires a recent version of Neovim and Blender. The following versions are known to work:
 
-- [Neovim](https://neovim.io) >= 0.9.5
-- [Blender](https://www.blender.org) >= 2.80.34
+- [Neovim](https://neovim.io) >= 0.10.0 (nightly)
+- [Blender](https://www.blender.org) >= 4.1.0
 
 #### Neovim Plugin Dependencies:
 
