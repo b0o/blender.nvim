@@ -2,9 +2,6 @@
 
 **Develop Blender add-ons with Neovim.**
 
-> [!NOTE]
-> Blender.nvim is experimental and under active development.
-
 ## Features
 
 - **Run** your add-on in Blender directly from Neovim
