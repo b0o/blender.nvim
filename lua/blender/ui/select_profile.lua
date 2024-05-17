@@ -25,6 +25,38 @@ return function(on_select)
     instance = nil
   end)
 
+  if #config.profiles == 0 then
+    renderer:render(n.rows(
+      n.paragraph {
+        border_label = {
+          text = n.text('No Profiles Found', hl.BlenderAccent),
+          icon = '⚠ ',
+          align = 'center',
+        },
+        padding = { top = 0, right = 1, bottom = 0, left = 1 },
+        truncate = false,
+        lines = {
+          n.line 'Please ensure that Blender is installed, or add a custom profile to your configuration.',
+          n.line '',
+        },
+      },
+      n.columns(
+        { flex = 0 },
+        n.gap { flex = 1 },
+        n.button {
+          label = ' Close ',
+          autofocus = true,
+          is_active = true,
+          on_press = function()
+            renderer:close()
+          end,
+        },
+        n.gap { flex = 1 }
+      )
+    ))
+    return
+  end
+
   ---@type List<{id: number, profile: Profile}>
   local options = vim
     .iter(ipairs(config.profiles))

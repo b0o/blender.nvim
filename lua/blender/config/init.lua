@@ -1,6 +1,7 @@
 local Schema = require 'blender.config.schema'
 local vx = require 'blender.config.validate'
 local tx = require 'blender.config.transform'
+local detect_profiles = require 'blender.profile.detect'
 
 local M = {}
 
@@ -41,9 +42,7 @@ local M = {}
 M.schema = Schema(function(s)
   return {
     profiles = s:entry(
-      {
-        { name = 'blender', cmd = 'blender' },
-      },
+      detect_profiles(),
       vx.list.of(vx.table.of_all {
         name = vx.string,
         cmd = vx.any { vx.string, vx.list.of(vx.string) },
