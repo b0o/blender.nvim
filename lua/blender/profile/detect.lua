@@ -36,6 +36,7 @@ return function()
           cmd = exec_path,
         }
         table.insert(profiles, profile)
+        break
       end
     end
   end
