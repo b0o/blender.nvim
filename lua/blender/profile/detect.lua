@@ -18,7 +18,10 @@ return function()
     execs['Blender.app'] = '/Applications/Blender.app/Contents/MacOS/Blender'
     table.insert(search_paths, '/opt/homebrew/bin')
   end
-  -- TODO: Windows
+  local is_windows = vim.fn.has 'win32' == 1
+  if is_windows then
+    table.insert(search_paths, 'C:/Program Files/Blender Foundation')
+  end
 
   ---@type ProfileParams[]
   local profiles = {}
@@ -28,6 +31,9 @@ return function()
       unpack(name:sub(1, 1) == '/' and {} or search_paths),
     } do
       local full_path = path == '' and exec or path .. '/' .. exec
+      if is_windows then
+        full_path = path .. '/' .. name .. '/blender'
+      end
       local exec_path = vim.fn.exepath(full_path)
       if exec_path ~= '' then
         ---@type ProfileParams
