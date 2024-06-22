@@ -28,6 +28,11 @@ local get_launcher_path = function()
   return launcher_path[1]
 end
 
+local fix_path_separators = function(path)
+  -- Windows paths get mixed up, ensure they have consistent separators
+  return vim.fn.has('win32') == 1 and string.gsub(path, '\\', '/') or path
+end
+
 ---@param params ProfileParams
 ---@return Profile
 function Profile.create(params)
@@ -96,6 +101,7 @@ function Profile:get_full_cmd()
 end
 
 local function is_addon_init(path)
+  path = fix_path_separators(path)
   if vim.fn.filereadable(path) == 0 then
     return false
   end
@@ -147,7 +153,7 @@ end
 function Profile:get_watch_patterns()
   local paths = self:get_paths()
   -- TODO: Make this configurable
-  local addon_dir = paths.addon_dir
+  local addon_dir = fix_path_separators(paths.addon_dir)
   return { addon_dir .. '/*' }
 end
 
