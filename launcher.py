@@ -24,8 +24,11 @@ def append_venv_path(virtual_env: str):
     if not lib_dir.exists():
         log("WARN", f"Virtual environment does not have lib directory: {lib_dir}")
         return
-    python_ver = f"{sys.version_info.major}.{sys.version_info.minor}"
-    python_dir = lib_dir / f"python{python_ver}"
+    if os.name == "nt":
+        python_dir = lib_dir
+    else:
+        python_ver = f"{sys.version_info.major}.{sys.version_info.minor}"
+        python_dir = lib_dir / f"python{python_ver}"
     if not python_dir.exists():
         log(
             "WARN",
