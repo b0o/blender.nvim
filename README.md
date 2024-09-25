@@ -41,6 +41,8 @@ Activate your virtual environment and launch Neovim from within it to ensure the
 
 For an example starter project, see [blender-addon-template](https://github.com/b0o/blender-addon-template).
 
+If you're managing your virtualenv with [Rye](https://rye.astral.sh/), see the [note below](#rye-virtual-environment-support).
+
 ### Lazy.nvim
 
 ```lua
@@ -148,6 +150,34 @@ actions.watch(patterns)
 ---Stop watching for changes in the addon files
 actions.unwatch()
 ```
+
+### Rye Virtual Environment Support
+
+[Rye](https://rye.astral.sh/) is a project and package management solution for Python. It can create virtual environments, manage dependencies, and more.
+
+Rye downloads and manages its own Python installations rather than using your system Python installation.
+Because of this, you may experience errors when launching Blender from within a Rye virtual environment, because Blender expects to use the system Python installation.
+
+To fix this, you can register the Python installation used by Blender as a Rye toolchain:
+
+```sh
+$ rye toolchain register -n blender-cpython /usr/bin/python3.12 # replace with your Blender Python executable
+```
+
+To determine the path to your Blender Python executable, launch Blender with the following command (make sure you're not in a Python virtual environment):
+
+```sh
+$ blender --background --python-expr "import sys; print(sys.executable)"
+```
+
+After you've registered the toolchain, create a `.python-version` file in your Blender Add-on project directory:
+
+```conf
+# replace with your Rye toolchain name/version:
+blender-cpython@3.12
+```
+
+Then, run `rye sync` to update the Rye `.venv`. After this, you should be able to use Blender.nvim from within the Rye virtual environment.
 
 ## License & Credits
 
