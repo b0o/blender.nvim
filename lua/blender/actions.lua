@@ -1,6 +1,8 @@
 local ui = require 'blender.ui'
 local manager = require 'blender.manager'
 local notify = require 'blender.notify'
+local manage_task = require 'blender.ui.manage_task'
+local select_profile = require 'blender.ui.select_profile'
 
 local M = {}
 
@@ -14,22 +16,34 @@ M.show_ui = function()
   M.show_launcher()
 end
 
+M.close_ui = function()
+  ui.close()
+end
+
+M.toggle_ui = function()
+  if ui.is_open() then
+    ui.close()
+  else
+    M.show_ui()
+  end
+end
+
 ---Launch a Blender profile
 M.show_launcher = function()
   local running_task = manager.get_running_task()
   if running_task then
-    ui.manage_task {
+    manage_task {
       message = 'A task is already running',
       task = running_task,
     }
     return
   end
-  ui.select_profile(function(profile)
+  select_profile(function(profile)
     local task = profile:launch()
     if not task then
       return
     end
-    ui.manage_task { task = task }
+    manage_task { task = task }
   end)
 end
 
@@ -39,7 +53,7 @@ M.show_task_manager = function()
     notify('No Blender task', 'ERROR')
     return
   end
-  ui.manage_task { task = manager.task }
+  manage_task { task = manager.task }
 end
 
 ---Reload the Blender add-on

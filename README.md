@@ -133,7 +133,18 @@ end
 ```lua
 local actions = require("blender.actions")
 
----Launch a Blender profile
+---Open the Blender.nvim UI
+---If no task is running, the launcher is shown,
+---otherwise the task manager is shown.
+actions.show_ui()
+
+---Close the Blender.nvim UI
+actions.close_ui()
+
+---Toggle the Blender.nvim UI
+actions.toggle_ui()
+
+---Show the Blender.nvim task launcher
 actions.show_launcher()
 
 ---Manage a running Blender task

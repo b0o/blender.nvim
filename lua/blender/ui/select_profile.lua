@@ -3,14 +3,16 @@ local n = require 'nui-components'
 local config = require 'blender.config'
 local hl = require('blender.highlights').groups
 local Profile = require 'blender.profile'
+local ui = require 'blender.ui'
 
 local instance
 
 ---@param on_select fun(profile: Profile): nil
-return function(on_select)
+local function SelectProfile(on_select)
   if instance then
     instance:close()
     instance = nil
+    ui._on_close()
   end
 
   local renderer = n.create_renderer {
@@ -20,9 +22,18 @@ return function(on_select)
 
   renderer:on_mount(function()
     instance = renderer
+    ui._on_open {
+      close = function()
+        if instance then
+          instance:close()
+          instance = nil
+        end
+      end,
+    }
   end)
   renderer:on_unmount(function()
     instance = nil
+    ui._on_close()
   end)
 
   if #config.profiles == 0 then
@@ -163,3 +174,5 @@ return function(on_select)
 
   renderer:render(body)
 end
+
+return SelectProfile

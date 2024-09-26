@@ -4,6 +4,7 @@ local dap = require 'blender.dap'
 local signal_utils = require 'blender.signal.utils'
 local hl = require('blender.highlights').groups
 local notify = require 'blender.notify'
+local ui = require 'blender.ui'
 
 local instance
 
@@ -22,6 +23,7 @@ local is_tab_active = n.is_active_factory(tab_signal.active_tab)
 local function ManageTask(props)
   if instance then
     instance:close()
+    ui._on_close(instance)
     instance = nil
   end
 
@@ -32,9 +34,19 @@ local function ManageTask(props)
 
   renderer:on_mount(function()
     instance = renderer
+    ui._on_open {
+      close = function()
+        if instance then
+          instance:close()
+          instance = nil
+        end
+      end,
+    }
   end)
+
   renderer:on_unmount(function()
     instance = nil
+    ui._on_close()
   end)
 
   renderer:add_mappings {
