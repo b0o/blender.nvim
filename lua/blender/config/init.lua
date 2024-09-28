@@ -51,7 +51,7 @@ M.schema = Schema(function(s)
         enable_dap = vx.optional(vx.bool),
         watch = vx.optional(vx.bool),
       }),
-      { transform = tx.extend }
+      { transform = tx.prepend }
     ),
     dap = {
       enabled = s:entry(true, vx.bool),
