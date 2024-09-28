@@ -3,7 +3,7 @@
 ---@field blender_path string
 ---@field blender_version string
 ---@field scripts_folder string
----@field path_mappings List<unknown>
+---@field path_mappings unknown[]
 ---@field channel_id number
 
 ---@class RpcClient : RpcClientParams

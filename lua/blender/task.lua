@@ -28,7 +28,7 @@ local augroup = vim.api.nvim_create_augroup('blender.task', { clear = true })
 
 ---@class TaskParams
 ---@field profile Profile
----@field cmd List<string>
+---@field cmd string[]
 ---@field cwd string
 ---@field env table
 
@@ -139,7 +139,7 @@ function Task:_dispatch(event)
   end
 end
 
----@param data List<string>
+---@param data string[]
 function Task:_handle_output(data)
   pcall(vim.api.nvim_chan_send, self._term_id, table.concat(data, '\r\n'))
   vim.defer_fn(function()

@@ -68,7 +68,7 @@ local function SelectProfile(on_select)
     return
   end
 
-  ---@type List<{id: number, profile: Profile}>
+  ---@type {id: number, profile: Profile}[]
   local options = vim
     .iter(ipairs(config.profiles))
     :map(function(i, profile)

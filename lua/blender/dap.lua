@@ -17,7 +17,7 @@ end
 ---@field host string
 ---@field port number
 ---@field python_exe string
----@field path_mappings List<unknown>
+---@field path_mappings unknown[]
 ---@field cwd string
 
 ---@param args BlenderDapAttachArgs

@@ -7,14 +7,14 @@ local notify = require 'blender.notify'
 
 ---@class ProfileParams
 ---@field name string # The name of the profile
----@field cmd string | List<string> # The command to run
+---@field cmd string | string[] # The command to run
 ---@field use_launcher? boolean # Whether to append the launcher script to the command
----@field extra_args? List<string> # Extra arguments to pass to the command
+---@field extra_args? string[] # Extra arguments to pass to the command
 ---@field enable_dap? boolean # Whether to enable debugging with DAP
 ---@field watch? boolean # Whether to watch for changes and reload the addon
 
 ---@class Profile : ProfileParams
----@field cmd List<string>
+---@field cmd string[]
 local Profile = {}
 
 local launcher = 'launcher.py'
@@ -30,7 +30,7 @@ end
 
 local fix_path_separators = function(path)
   -- Windows paths get mixed up, ensure they have consistent separators
-  return vim.fn.has('win32') == 1 and string.gsub(path, '\\', '/') or path
+  return vim.fn.has 'win32' == 1 and string.gsub(path, '\\', '/') or path
 end
 
 ---@param params ProfileParams
@@ -44,7 +44,7 @@ function Profile.create(params)
     enable_dap = { params.enable_dap, 'boolean', true },
     watch = { params.watch, 'boolean', true },
   }
-  ---@type List<string>
+  ---@type string[]
   local cmd = type(params.cmd) == 'table' and params.cmd or { params.cmd }
   for _, c in ipairs(cmd) do
     vim.validate {
@@ -72,7 +72,7 @@ function Profile.create(params)
   }, { __index = Profile })
 end
 
----@return List<string>
+---@return string[]
 function Profile:get_launch_args()
   local args = {}
   if self.use_launcher then
@@ -93,7 +93,7 @@ function Profile:get_full_cmd()
   if not args then
     return
   end
-  ---@type List<string>
+  ---@type string[]
   local launch_cmd = {}
   vim.list_extend(launch_cmd, self.cmd)
   vim.list_extend(launch_cmd, args)
@@ -131,7 +131,7 @@ end
 ---@field load_dir string
 ---@field module_name string
 
----@return {addon_dir: string, path_mappings: List<PathMapping>}
+---@return {addon_dir: string, path_mappings: PathMapping[]}
 function Profile:get_paths()
   local addon_dir = self:find_addon_dir()
   if not addon_dir then

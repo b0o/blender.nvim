@@ -23,13 +23,13 @@ local M = {}
 ---@class WatchConfigResult : WatchConfig
 
 ---@class Config
----@field profiles List<ProfileParams>
+---@field profiles ProfileParams[]
 ---@field dap DapConfig
 ---@field notify NotifyConfig
 ---@field watch WatchConfig
 
 ---@class ConfigResult
----@field profiles List<ProfileParams>
+---@field profiles ProfileParams[]
 ---@field dap DapConfigResult
 ---@field notify NotifyConfigResult
 ---@field watch WatchConfigResult

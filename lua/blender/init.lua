@@ -1,6 +1,8 @@
 local M = {}
 
----@param config Config
+---@class ConfigParams : Config
+
+---@param config ConfigParams
 M.setup = function(config)
   require('blender.config').setup(config or {})
   require('blender.highlights').setup()
