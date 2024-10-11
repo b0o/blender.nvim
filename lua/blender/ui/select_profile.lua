@@ -104,14 +104,14 @@ local function SelectProfile(on_select)
         truncate = true,
         lines = signal.selected:map(function(profile)
           local res = {
-            n.line(n.text('Name:       ', hl.BlenderAccent), profile.name),
-            n.line(n.text('Command:    ', hl.BlenderAccent), table.concat(profile:get_full_cmd() or {}, ' ')),
+            n.line(n.text('Name:     ', hl.BlenderAccent), profile.name),
+            n.line(n.text('Command:  ', hl.BlenderAccent), table.concat(profile:get_full_cmd() or {}, ' ')),
           }
           if profile.env and not vim.tbl_isempty(profile.env) then
             table.insert(
               res,
               n.line(
-                n.text('Env:        ', hl.BlenderAccent),
+                n.text('Env:      ', hl.BlenderAccent),
                 vim
                   .iter(pairs(profile.env))
                   :map(function(k, v)
@@ -124,7 +124,7 @@ local function SelectProfile(on_select)
           if profile.enable_dap ~= nil then
             table.insert(
               res,
-              n.line(n.text('DAP:        ', hl.BlenderAccent), profile.enable_dap and 'enabled' or 'disabled')
+              n.line(n.text('DAP:      ', hl.BlenderAccent), profile.enable_dap and 'enabled' or 'disabled')
             )
           end
           return res
