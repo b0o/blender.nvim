@@ -22,8 +22,10 @@ local M = {}
 
 ---@class WatchConfigResult : WatchConfig
 
+---@alias ProfileGenerator fun(): ProfileParams|ProfileParams[]
+
 ---@class Config
----@field profiles ProfileParams[]
+---@field profiles (ProfileParams|ProfileGenerator)[]|ProfileGenerator
 ---@field dap DapConfig
 ---@field notify NotifyConfig
 ---@field watch WatchConfig
@@ -43,16 +45,29 @@ M.schema = Schema(function(s)
   return {
     profiles = s:entry(
       detect_profiles(),
-      vx.list.of(vx.table.of_all {
-        name = vx.string,
-        cmd = vx.any { vx.string, vx.list.of(vx.string) },
-        env = vx.optional(vx.map(vx.string, vx.string)),
-        use_launcher = vx.optional(vx.bool),
-        extra_args = vx.optional(vx.list.of(vx.string)),
-        enable_dap = vx.optional(vx.bool),
-        watch = vx.optional(vx.bool),
-      }),
-      { transform = tx.prepend }
+      vx.any {
+        vx.list.of(vx.any {
+          vx.table.of_all {
+            name = vx.string,
+            cmd = vx.any { vx.string, vx.list.of(vx.string) },
+            env = vx.optional(vx.map(vx.string, vx.string)),
+            use_launcher = vx.optional(vx.bool),
+            extra_args = vx.optional(vx.list.of(vx.string)),
+            enable_dap = vx.optional(vx.bool),
+            watch = vx.optional(vx.bool),
+          },
+          vx.callable,
+        }),
+        vx.callable,
+      },
+      {
+        transform = function(val, entry)
+          if type(val) == 'function' then
+            val = { val }
+          end
+          return tx.prepend(val, entry)
+        end,
+      }
     ),
     dap = {
       enabled = s:entry(true, vx.bool),

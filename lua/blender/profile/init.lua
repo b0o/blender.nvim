@@ -46,8 +46,8 @@ function Profile.create(params)
     watch = { params.watch, 'boolean', true },
     env = { params.env, 'table', true },
   }
-  ---@type string[]
-  local cmd = type(params.cmd) == 'table' and params.cmd or { params.cmd }
+  local cmd = type(params.cmd) == 'table' and params.cmd --[[ @as string[] ]]
+    or { params.cmd }
   for _, c in ipairs(cmd) do
     vim.validate {
       cmd = { c, 'string' },
@@ -75,7 +75,7 @@ function Profile.create(params)
   }, { __index = Profile })
 end
 
----@return string[]
+---@return string[]|nil
 function Profile:get_launch_args()
   local args = {}
   if self.use_launcher then

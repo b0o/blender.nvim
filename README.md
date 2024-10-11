@@ -20,7 +20,7 @@ https://github.com/b0o/blender.nvim/assets/21299126/cce964de-7cb6-4dfb-86d4-2cf2
 
 Blender.nvim requires a recent version of Neovim and Blender. The following versions are known to work:
 
-- [Neovim](https://neovim.io) >= 0.10.0 (nightly)
+- [Neovim](https://neovim.io) >= 0.11.0 (nightly)
 - [Blender](https://www.blender.org) >= 4.1.0
 
 #### Neovim Plugin Dependencies:
@@ -89,6 +89,51 @@ require("blender").setup {
     enabled = true, --            boolean?              whether to watch the add-on directory for changes (can be overridden per profile)
   },
 }
+```
+
+### Custom Profiles
+
+You can define custom profiles to launch Blender with different configurations.
+
+A profile is a table with the following fields:
+
+- `name`: The name of the profile
+- `cmd`: The command to run Blender
+- `env`: Environment variables to set when launching Blender (optional)
+- `use_launcher`: Whether to run the launcher.py script when starting Blender (optional)
+- `extra_args`: Extra arguments to pass to Blender (optional)
+- `enable_dap`: Whether to enable DAP for this profile (optional)
+- `watch`: Whether to watch for changes and reload the addon (optional)
+
+You can also use a function to generate profiles dynamically.
+
+For example, the following dynamically populates the `env` field of a profile:
+
+```lua
+blender.setup({
+  profiles = function()
+    local env = {}
+    local ok, lines = pcall(vim.fn.readfile, "myproject.env")
+    if not ok then
+      -- Don't generate a profile if the file doesn't exist
+      return
+    end
+    if ok and lines then
+      -- Read a key=value pair from each line of the file, and add it to the env table
+      for _, line in ipairs(lines) do
+        local key, value = line:match("^([^#]*)=(.*)$")
+        if key and value then
+          env[key] = value
+        end
+      end
+    end
+    return {
+      name = "myproject",
+      cmd = "blender",
+      env = env,
+    }
+  end,
+})
 ```
 
 ### Per-Project Configuration

@@ -68,9 +68,21 @@ local function SelectProfile(on_select)
     return
   end
 
+  local profiles = vim
+    .iter(config.profiles)
+    :map(function(profile)
+      if type(profile) == 'function' then
+        profile = profile()
+        return vim.islist(profile) and profile or { profile }
+      end
+      return { profile }
+    end)
+    :flatten()
+    :totable()
+
   ---@type {id: number, profile: Profile}[]
   local options = vim
-    .iter(ipairs(config.profiles))
+    .iter(ipairs(profiles))
     :map(function(i, profile)
       return { id = i, profile = Profile.create(profile) }
     end)
@@ -95,6 +107,20 @@ local function SelectProfile(on_select)
             n.line(n.text('Name:       ', hl.BlenderAccent), profile.name),
             n.line(n.text('Command:    ', hl.BlenderAccent), table.concat(profile:get_full_cmd() or {}, ' ')),
           }
+          if profile.env and not vim.tbl_isempty(profile.env) then
+            table.insert(
+              res,
+              n.line(
+                n.text('Env:        ', hl.BlenderAccent),
+                vim
+                  .iter(pairs(profile.env))
+                  :map(function(k, v)
+                    return string.format('%s=%s', k, v)
+                  end)
+                  :join ' '
+              )
+            )
+          end
           if profile.enable_dap ~= nil then
             table.insert(
               res,
