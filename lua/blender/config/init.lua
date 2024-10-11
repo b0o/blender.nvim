@@ -46,6 +46,7 @@ M.schema = Schema(function(s)
       vx.list.of(vx.table.of_all {
         name = vx.string,
         cmd = vx.any { vx.string, vx.list.of(vx.string) },
+        env = vx.optional(vx.map(vx.string, vx.string)),
         use_launcher = vx.optional(vx.bool),
         extra_args = vx.optional(vx.list.of(vx.string)),
         enable_dap = vx.optional(vx.bool),

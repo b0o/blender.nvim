@@ -8,6 +8,7 @@ local notify = require 'blender.notify'
 ---@class ProfileParams
 ---@field name string # The name of the profile
 ---@field cmd string | string[] # The command to run
+---@field env? table<string, string> # Environment variables to set
 ---@field use_launcher? boolean # Whether to append the launcher script to the command
 ---@field extra_args? string[] # Extra arguments to pass to the command
 ---@field enable_dap? boolean # Whether to enable debugging with DAP
@@ -43,6 +44,7 @@ function Profile.create(params)
     extra_args = { params.extra_args, 'table', true },
     enable_dap = { params.enable_dap, 'boolean', true },
     watch = { params.watch, 'boolean', true },
+    env = { params.env, 'table', true },
   }
   ---@type string[]
   local cmd = type(params.cmd) == 'table' and params.cmd or { params.cmd }
@@ -69,6 +71,7 @@ function Profile.create(params)
     extra_args = params.extra_args,
     enable_dap = params.enable_dap,
     watch = params.watch,
+    env = params.env or {},
   }, { __index = Profile })
 end
 
@@ -175,7 +178,7 @@ function Profile:launch()
   local task = Task.create {
     cmd = launch_cmd,
     cwd = vim.fn.getcwd(),
-    env = vim.tbl_extend('force', vim.fn.environ(), {
+    env = vim.tbl_extend('force', vim.fn.environ(), self.env, {
       BLENDER_NVIM_ENABLE_DAP = self:dap_enabled() and 'yes' or 'no',
       BLENDER_NVIM_ADDONS_TO_LOAD = vim.json.encode(self:get_paths().path_mappings),
       BLENDER_NVIM_RPC_SOCKET = rpc.get_server():get_socket(),
