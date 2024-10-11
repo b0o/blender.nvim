@@ -94,7 +94,6 @@ require("blender").setup {
 ### Custom Profiles
 
 You can define custom profiles to launch Blender with different configurations.
-
 A profile is a table with the following fields:
 
 - `name`: The name of the profile
@@ -106,7 +105,6 @@ A profile is a table with the following fields:
 - `watch`: Whether to watch for changes and reload the addon (optional)
 
 You can also use a function to generate profiles dynamically.
-
 For example, the following dynamically populates the `env` field of a profile:
 
 ```lua
