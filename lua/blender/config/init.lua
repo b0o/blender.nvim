@@ -99,7 +99,7 @@ M.schema = Schema(function(s)
     },
     ui = {
       output_panel = {
-        height = s:entry(20, vx.number.positive),
+        height = s:entry(0.25, vx.number.positive),
       },
     },
   }, {
