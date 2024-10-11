@@ -22,6 +22,11 @@ local M = {}
 
 ---@class WatchConfigResult : WatchConfig
 
+---@class UiConfig
+---@field output_panel { height: number }
+
+---@class UiConfigResult : UiConfig
+
 ---@alias ProfileGenerator fun(): ProfileParams|ProfileParams[]
 
 ---@class Config
@@ -29,12 +34,14 @@ local M = {}
 ---@field dap DapConfig
 ---@field notify NotifyConfig
 ---@field watch WatchConfig
+---@field ui UiConfig
 
 ---@class ConfigResult
 ---@field profiles ProfileParams[]
 ---@field dap DapConfigResult
 ---@field notify NotifyConfigResult
 ---@field watch WatchConfigResult
+---@field ui UiConfigResult
 
 ---@class ConfigModule : ConfigResult
 ---@field setup fun(config: Config)
@@ -89,6 +96,11 @@ M.schema = Schema(function(s)
     },
     watch = {
       enabled = s:entry(true, vx.bool),
+    },
+    ui = {
+      output_panel = {
+        height = s:entry(20, vx.number.positive),
+      },
     },
   }, {
     deprecated = {

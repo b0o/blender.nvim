@@ -88,6 +88,11 @@ require("blender").setup {
   watch = { --                    WatchConfig?          file watcher configuration
     enabled = true, --            boolean?              whether to watch the add-on directory for changes (can be overridden per profile)
   },
+  ui = { --                      UiConfig?             UI configuration
+    output_panel = { --          { height: number }    output panel configuration
+      height = 0.25, --          number                height of the output panel. if 0 < height < 1, the height is a percentage of the window height
+    },
+  },
 }
 ```
 

@@ -1,3 +1,4 @@
+local config = require 'blender.config'
 local manager = require 'blender.manager'
 local Panel = require 'blender.panel'
 
@@ -21,9 +22,13 @@ function OutputPanel()
   if not buf then
     return
   end
+  local height = config.ui.output_panel.height
+  if height > 0 and height < 1 then
+    height = math.floor(vim.o.lines * height)
+  end
   local panel = Panel.create_panel {
     buf = buf,
-    height = 20,
+    height = height,
   }
   instance = panel
   return panel
