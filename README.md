@@ -128,6 +128,7 @@ end
 - `:BlenderReload` - Reload the Blender add-on
 - `:BlenderWatch` - Watch for changes and reload the add-on
 - `:BlenderUnwatch` - Stop watching for changes
+- `:BlenderOutput` - Toggle the output panel
 
 ### Lua API
 
@@ -150,6 +151,15 @@ actions.show_launcher()
 
 ---Manage a running Blender task
 actions.show_task_manager()
+
+---Open the output panel
+actions.show_output_panel()
+
+---Close the output panel
+actions.close_output_panel()
+
+---Toggle the output panel
+actions.toggle_output_panel()
 
 ---Reload the Blender add-on
 actions.reload()

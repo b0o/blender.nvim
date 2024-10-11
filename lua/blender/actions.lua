@@ -3,6 +3,7 @@ local manager = require 'blender.manager'
 local notify = require 'blender.notify'
 local manage_task = require 'blender.ui.manage_task'
 local select_profile = require 'blender.ui.select_profile'
+local output_panel = require 'blender.ui.output_panel'
 
 local M = {}
 
@@ -54,6 +55,33 @@ M.show_task_manager = function()
     return
   end
   manage_task { task = manager.task }
+end
+
+---Open the output panel
+M.show_output_panel = function()
+  local panel = output_panel()
+  if not panel then
+    return
+  end
+  panel:show()
+end
+
+---Close the output panel
+M.close_output_panel = function()
+  local panel = output_panel()
+  if not panel then
+    return
+  end
+  panel:hide()
+end
+
+---Toggle the output panel
+M.toggle_output_panel = function()
+  local panel = output_panel()
+  if not panel then
+    return
+  end
+  panel:toggle()
 end
 
 ---Reload the Blender add-on

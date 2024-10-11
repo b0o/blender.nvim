@@ -27,6 +27,7 @@ M.setup = function()
   cmd('BlenderReload', action 'reload', 'Reload the Blender addon')
   cmd('BlenderWatch', action 'watch', 'Watch for changes and reload the addon')
   cmd('BlenderUnwatch', action 'unwatch', 'Stop watching for changes')
+  cmd('BlenderOutput', action 'toggle_output_panel', 'Toggle the output panel')
 end
 
 return M
