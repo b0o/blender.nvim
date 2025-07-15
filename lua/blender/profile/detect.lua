@@ -6,6 +6,7 @@ return function()
     ['Blender 4.2'] = 'blender-4.2',
     ['Blender 4.3'] = 'blender-4.3',
     ['Blender 4.4'] = 'blender-4.4',
+    ['Blender 4.5'] = 'blender-4.5',
   }
 
   local search_paths = {}
